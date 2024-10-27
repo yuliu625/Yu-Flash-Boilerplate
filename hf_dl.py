@@ -40,8 +40,8 @@ def main(repo_id, local_dir_str):
 
 if __name__ == "__main__":
     # 仓库id。
-    repo_id = r"google-bert/bert-base-multilingual-cased"
+    repo_id = r"FacebookAI/xlm-roberta-base"
     # 本地路径，服务器上需要选择一下类型。
-    local_dir_str = r"/home/liuyu/liuyu_data/models/hf/nlp"
+    local_dir_str = r"D:\dcmt\model\hf"
     main(repo_id, local_dir_str)
     
