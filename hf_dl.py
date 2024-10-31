@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # os.environ['HF_HOME'] = "~/.cache/huggingface"
 
     # 仓库id。
-    repo_id = r"openai/clip-vit-base-patch32"
+    repo_id = r"google/vit-base-patch16-224-in21k"
     # 本地路径，服务器上需要选择一下类型。
     local_dir_str = r"D:\dcmt\model\hf"
     main(repo_id, local_dir_str)
