@@ -1,4 +1,4 @@
-# Flash Deep Learning tools
+# Flash Deep-Learning Boilerplate
 
 ## Overview
 
