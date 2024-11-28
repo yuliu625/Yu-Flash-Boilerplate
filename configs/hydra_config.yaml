@@ -1,3 +1,4 @@
 defaults:
-  - model: main
-  - dataloader: main
+  - dataloader: dataloader
+  - model: model
+  - trainer: trainer

@@ -1,0 +1,8 @@
+trainer:
+  checkpoint:
+    is_from_checkpoint: False
+    checkpoint_path: ''
+  loggers:
+    wandb:
+    tensor_board:
+  configs:
