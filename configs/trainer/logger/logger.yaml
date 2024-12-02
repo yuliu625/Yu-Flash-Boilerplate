@@ -1,0 +1,9 @@
+choice:
+  - csv
+  - tensorboard
+  - wandb
+csv:
+tensorboard:
+wandb:
+  project: 'wav2vec2-classification-for-short-videos-emotion-1.0'
+  name: ''
