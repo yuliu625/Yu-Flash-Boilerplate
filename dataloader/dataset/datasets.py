@@ -2,6 +2,8 @@
 原始的torch中的对于dataset的定义。
 """
 
+from dataloader.dataset.processor import Processor
+
 import torch
 from torch.utils.data import Dataset
 
