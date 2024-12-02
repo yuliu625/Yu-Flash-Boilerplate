@@ -4,14 +4,12 @@ from trainer.l_model import LightningModel
 import torch
 import lightning as pl
 
-from omegaconf import OmegaConf, DictConfig
-
 
 class LightningTrainer:
     """
     封装了lightning trainer的流程。
     """
-    def __init__(self, config: DictConfig) -> None:
+    def __init__(self, config: dict) -> None:
         """
         :param config: 这是一个总的配置文件。
         """
@@ -45,8 +43,6 @@ class LightningTrainer:
             train_dataloaders=self.train_dataloader,
             val_dataloaders=self.val_dataloader
         )
-
-
 
 
 if __name__ == '__main__':
