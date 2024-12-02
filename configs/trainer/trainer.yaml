@@ -10,7 +10,7 @@ checkpoint:
 
 device:
   accelerator: 'gpu'
-  devices: 'auto'
+  devices: 'auto'  # 如果指定设备，以list给出，例如[0, 3]
 callbacks:
   choice:
     - model_checkpoint
