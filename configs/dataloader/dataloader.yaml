@@ -1,4 +1,43 @@
-dataloader:
-  dataset:
-  batch_size:
-  is_shuffle:
+defaults:
+  - _self_
+#  - dataset: dataset
+
+dataset_global:
+  file:
+    control_file_dir_path: 'D:\dcmt\dataset\news_emotion'
+    audio_dir_path: 'D:\dcmt\dataset\news_emotion\audio'
+  processor:
+    name: wav2vec2
+    path: 'D:\dcmt\model\hf\facebook\wav2vec2-base-960h'
+
+#这下面的一般不用修改。
+dataloader_global:
+  batch_size: 4
+  num_workers: 4
+
+train_dataloader:
+  batch_size: ${dataloader.dataloader_global.batch_size}
+  num_workers: ${dataloader.dataloader_global.num_workers}
+  shuffle: True
+
+val_dataloader:
+  batch_size: ${dataloader.dataloader_global.batch_size}
+  num_workers: ${dataloader.dataloader_global.num_workers}
+  shuffle: False
+
+#dataset部分有2个具体名称可能需要修改。
+train_dataset:
+  control_file:
+    path: ${dataloader.dataset_global.file.control_file_dir_path}/train_data.json
+  file:
+    file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+  processor:
+    path: ${dataloader.dataset_global.processor.path}
+
+val_dataset:
+  control_file:
+    path: ${dataloader.dataset_global.file.control_file_dir_path}/val_data.json
+  file:
+    file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+  processor:
+    path: ${dataloader.dataset_global.processor.path}
