@@ -1,8 +1,28 @@
-trainer:
-  checkpoint:
-    is_from_checkpoint: False
-    checkpoint_path: ''
-  loggers:
-    wandb:
-    tensor_board:
-  configs:
+defaults:
+  - _self_
+#  - loggers: loggers
+
+default_root_dir: ''
+max_epochs: 300
+checkpoint:
+  is_from_checkpoint: False
+  checkpoint_path: ''
+
+device:
+  accelerator: 'gpu'
+  devices: 'auto'
+callbacks:
+  choice:
+    - model_checkpoint
+    - early_stop
+
+logger:
+  choice:
+    - csv
+    - tensorboard
+    - wandb
+  csv:
+  tensorboard:
+  wandb:
+    project: 'wav2vec2-classification-for-short-videos-emotion-1.0'
+    name: ''
