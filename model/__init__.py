@@ -8,4 +8,5 @@
 # __all__ = []
 
 
-# from . import
+# 一般情况下，仅对外暴露各种结构的model。
+from .models import CommonModel
