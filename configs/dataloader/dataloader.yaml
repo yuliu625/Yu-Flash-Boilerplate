@@ -26,18 +26,19 @@ val_dataloader:
   shuffle: False
 
 #dataset部分有2个具体名称可能需要修改。
-train_dataset:
-  control_file:
-    path: ${dataloader.dataset_global.file.control_file_dir_path}/train_data.json
-  file:
-    file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
-  processor:
-    path: ${dataloader.dataset_global.processor.path}
+dataset:
+  train_dataset:
+    control_file:
+      path: ${dataloader.dataset_global.file.control_file_dir_path}/train_data.json
+    file:
+      file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+    processor:
+      path: ${dataloader.dataset_global.processor.path}
 
-val_dataset:
-  control_file:
-    path: ${dataloader.dataset_global.file.control_file_dir_path}/val_data.json
-  file:
-    file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
-  processor:
-    path: ${dataloader.dataset_global.processor.path}
+  val_dataset:
+    control_file:
+      path: ${dataloader.dataset_global.file.control_file_dir_path}/val_data.json
+    file:
+      file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+    processor:
+      path: ${dataloader.dataset_global.processor.path}
