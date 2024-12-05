@@ -8,7 +8,7 @@
 这里仅设置干净的step相关内容。
 """
 
-# from model import
+from model import CommonModel
 
 import torch
 import torch.nn as nn
@@ -19,19 +19,36 @@ import torchmetrics
 
 
 class LightningModel(pl.LightningModule):
+    """
+    lightning中本身的做法。
+
+    我根据lightning的设计，对配置文件做了适配。
+    """
     def __init__(self, config):
         super().__init__()
         self.config = config
         self.model_config = config['model']
+        self.criterion_config = self.model_config['criterion']
 
         # 设置模型
-        self.model = MyModel(self.model_config)
+        self.model = CommonModel(self.model_config)
         # 设置损失函数
-        self.loss_fn = self.choose_loss_fn(config['loss_fn'])
+        self.loss_fn = self.choose_loss_fn(self.criterion_config['loss_fn']['name'])
+        # 设置优化器
+        # self.optimizer = optim.Adam(self.model.parameters(), lr=self.model_config['lr'])
+        # 设置评估函数
+        self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
+        self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
 
-        # 额外的设置
+        # 额外的设置。
         # 保存模型配置的超参数。
         self.save_hyperparameters()
+        # 测试模型的输入，会在summary table中展现。
+        self.example_input_array = torch.rand(4, 2000)
+
+    def forward(self, x):
+        """一些情况下，需要实现forward来避免报错。"""
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         """必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。"""
@@ -43,7 +60,8 @@ class LightningModel(pl.LightningModule):
         # 前向传播
         outputs = self.model(inputs)
 
-        # 测试损失
+        # 计算训练损失
+        # TODO: 之后需要考虑自定义更加复杂的损失函数和多阶段训练流程。
         loss = self.loss_fn(outputs, labels)
 
         # 日志
@@ -69,13 +87,23 @@ class LightningModel(pl.LightningModule):
         loss = self.loss_fn(outputs, labels)
 
         # 这里应该还有测试指标。
+        accuracy = self.accuracy_fn(outputs, labels)
+        f1_score = self.f1_score_fn(outputs, labels)
 
         # 日志
         self.log('val_loss', loss)
+        self.log('val_accuracy', accuracy)
+        self.log('val_f1_score', f1_score)
+        # 也可以用self.log_dict({})，但我不用。
 
     def choose_loss_fn(self, choice: str):
         if choice == 'cross_entropy':
             return nn.CrossEntropyLoss()
+
+    def choose_metrics(self, choice: str):
+        # TODO: 这个要同时设置多个metrics该如何实现呢？直接self中添加，validation中如何知道？
+        if choice == 'accuracy':
+            return torchmetrics.Accuracy()
 
 
 if __name__ == '__main__':
