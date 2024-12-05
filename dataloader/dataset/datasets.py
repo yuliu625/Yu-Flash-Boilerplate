@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 
 
-class MyDataset(Dataset):
+class CommonDataset(Dataset):
     """
     torch中实现dataset的基础。
 
