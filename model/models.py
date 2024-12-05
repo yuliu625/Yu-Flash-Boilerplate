@@ -9,7 +9,7 @@ import torch.nn as nn
 
 
 # TODO: 可以设计Interface以实现更好的通用性。
-class MyModel(nn.Module):
+class CommonModel(nn.Module):
     def __init__(self, config: dict):
         super().__init__()
         self.config = config
