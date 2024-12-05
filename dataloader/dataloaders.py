@@ -2,7 +2,7 @@
 原始的torch中的对于dataloader的定义。
 """
 
-# from dataset import
+from dataset import CommonDataset
 from dataloader.collate_fn import collate_fn
 
 from torch.utils.data import DataLoader
@@ -72,7 +72,7 @@ class DataLoaderFactory:
 
     def get_train_dataloader(self):
         # 设置dataset。
-        train_dataset = SpecificDataset(self.train_dataset_config)
+        train_dataset = CommonDataset(self.train_dataset_config)
         # 设置dataloader。
         train_dataloader = DataLoader(
             dataset=train_dataset,
@@ -85,7 +85,7 @@ class DataLoaderFactory:
 
     def get_val_dataloader(self):
         # 设置dataset。
-        val_dataset = SpecificDataset(self.val_dataset_config)
+        val_dataset = CommonDataset(self.val_dataset_config)
         # 设置dataloader。
         val_dataloader = DataLoader(
             dataset=val_dataset,
