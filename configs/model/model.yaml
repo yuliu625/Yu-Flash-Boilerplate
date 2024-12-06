@@ -25,4 +25,5 @@ criterion:
   metrics:
     choice:
       - accuracy
+      - recall
       - f1_score
