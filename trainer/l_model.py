@@ -96,6 +96,8 @@ class LightningModel(pl.LightningModule):
         self.log('val_f1_score', f1_score)
         # 也可以用self.log_dict({})，但我不用。
 
+        return {'val_loss': loss, 'val_accuracy': accuracy, 'val_f1_score': f1_score}
+
     def choose_loss_fn(self, choice: str):
         if choice == 'cross_entropy':
             return nn.CrossEntropyLoss()
