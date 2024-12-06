@@ -5,7 +5,7 @@ defaults:
 dataset_global:
   file:
     control_file_dir_path: 'D:\dcmt\dataset\news_emotion'
-    audio_dir_path: 'D:\dcmt\dataset\news_emotion\audio'
+    file_dir_path: 'D:\dcmt\dataset\news_emotion\audio'
   processor:
     name: wav2vec2
     path: 'D:\dcmt\model\hf\facebook\wav2vec2-base-960h'
