@@ -26,4 +26,11 @@ class Processor:
 
 
 if __name__ == '__main__':
-    pass
+    """实例化一个processor，输入一个测试数据，查看处理的结果。"""
+    processor = Processor({'path': r''})
+    result = processor('data')
+
+    print(result)
+    print(type(result))
+    print(result.dtype)
+    print(result.shape)
