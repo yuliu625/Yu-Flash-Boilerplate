@@ -2,7 +2,7 @@
 原始的torch中的对于dataloader的定义。
 """
 
-from dataset import CommonDataset
+from dataloader.dataset import CommonDataset
 from dataloader.collate_fn import collate_fn
 
 from torch.utils.data import DataLoader
@@ -98,5 +98,4 @@ class DataLoaderFactory:
 
 
 if __name__ == '__main__':
-    # demo_dataloader = build_dataloader(dataset)
-    pass
+    """对dataloader的测试放在collate_fn中进行。"""
