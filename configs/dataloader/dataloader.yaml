@@ -31,7 +31,7 @@ dataset:
     control_file:
       path: ${dataloader.dataset_global.file.control_file_dir_path}/train_data.json
     file:
-      file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+      file_dir_path: ${dataloader.dataset_global.file.file_dir_path}
     processor:
       path: ${dataloader.dataset_global.processor.path}
 
@@ -39,6 +39,6 @@ dataset:
     control_file:
       path: ${dataloader.dataset_global.file.control_file_dir_path}/val_data.json
     file:
-      file_dir_path: ${dataloader.dataset_global.file.audio_dir_path}
+      file_dir_path: ${dataloader.dataset_global.file.file_dir_path}
     processor:
       path: ${dataloader.dataset_global.processor.path}
