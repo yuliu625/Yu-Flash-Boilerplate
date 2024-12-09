@@ -77,4 +77,13 @@ class CommonDataset(Dataset):
 
 
 if __name__ == '__main__':
-    pass
+    """实例化一个dataset，查看数据输出的情况。可先查看path的映射情况。"""
+    common_dataset = CommonDataset({
+        'control_file': {'path': r''},
+        'file': {'file_dir_path': r''},
+        'processor': {'path': r''},
+    })
+
+    print(len(common_dataset))
+    print(common_dataset[0])
+    print(common_dataset[1])
