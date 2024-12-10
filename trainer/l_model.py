@@ -38,6 +38,8 @@ class LightningModel(pl.LightningModule):
         # self.optimizer = optim.Adam(self.model.parameters(), lr=self.model_config['lr'])
         # 设置评估函数
         self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
+        self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
+        self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
         self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
 
         # 额外的设置。
@@ -52,7 +54,6 @@ class LightningModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         """必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。"""
-
         # 获取数据
         labels = batch['labels']
         inputs = batch['datas']
@@ -75,7 +76,6 @@ class LightningModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         """应该的，验证模型。"""
-
         # 获取数据
         labels = batch['labels']
         inputs = batch['datas']
@@ -88,15 +88,25 @@ class LightningModel(pl.LightningModule):
 
         # 这里应该还有测试指标。
         accuracy = self.accuracy_fn(outputs, labels)
+        precision = self.precision_fn(outputs, labels)
+        recall = self.recall_fn(outputs, labels)
         f1_score = self.f1_score_fn(outputs, labels)
 
         # 日志
         self.log('val_loss', loss)
         self.log('val_accuracy', accuracy)
+        self.log('val_precision', precision)
+        self.log('val_recall', recall)
         self.log('val_f1_score', f1_score)
         # 也可以用self.log_dict({})，但我不用。
 
-        return {'val_loss': loss, 'val_accuracy': accuracy, 'val_f1_score': f1_score}
+        return {
+            'val_loss': loss,
+            'val_accuracy': accuracy,
+            'val_precision': precision,
+            'val_recall': recall,
+            'val_f1_score': f1_score,
+        }
 
     def choose_loss_fn(self, choice: str):
         if choice == 'cross_entropy':
@@ -104,6 +114,8 @@ class LightningModel(pl.LightningModule):
 
     def choose_metrics(self, choice: str):
         # TODO: 这个要同时设置多个metrics该如何实现呢？直接self中添加，validation中如何知道？
+        # 似乎完全需要构建一个类才能实现，但是好像没有必要。要实现就需要动态添加属性，并同时在validation_step进行同步。
+        # 但是，metrics方法自然是越多越好，并且不怎么改动的。
         if choice == 'accuracy':
             return torchmetrics.Accuracy()
 
