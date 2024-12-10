@@ -36,6 +36,7 @@ class LightningTrainer:
         self.loggers_config = self.trainer_config['loggers']
         self.device_config = self.trainer_config['device']
 
+        # 这部分或许在使用LightningDataModule之后可以从构建trainer中分离。
         # 生成train_dataloader和val_dataloader。
         self.train_dataloader, self.val_dataloader = self.build_dataloader()
 
