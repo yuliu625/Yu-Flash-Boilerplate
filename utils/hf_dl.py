@@ -43,7 +43,7 @@ def download_model_from_huggingface(repo_id: str, local_dir: Path, is_only_torch
                 allow_patterns=[
                     '*.pt', '*.pth', '*.bin',
                     '*.json', '*.txt', '*.md',
-                    # '*.safetensors',
+                    '*.safetensors',
                 ]  # 我不断在检查和总结的torch相关的文件。
             )
         else:
@@ -93,8 +93,8 @@ def main(repo_ids, local_dir_str):
 
 if __name__ == "__main__":
     # 仓库id。
-    repo_ids = [r"google/vit-base-patch16-224-in21k", ]
+    repo_ids = [r"Qwen/Qwen2.5-0.5B-Instruct", r"Qwen/Qwen2-VL-2B-Instruct"]
     # 本地路径，服务器上需要选择一下类型。
-    local_dir_str = r"D:\dcmt\model\hf"
+    local_dir_str = r"D:/model/"
 
     main(repo_ids, local_dir_str)
