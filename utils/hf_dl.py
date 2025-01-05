@@ -6,6 +6,8 @@
 单独配置和运行这个文件，这里会将指定的仓库下载到指定的本地位置。
 """
 
+# TODO: 将这里的方法以对象化进行重构。同时考虑workflow。
+
 from huggingface_hub import hf_hub_download, snapshot_download
 
 import os
@@ -44,6 +46,7 @@ def download_model_from_huggingface(repo_id: str, local_dir: Path, is_only_torch
                     '*.pt', '*.pth', '*.bin',
                     '*.json', '*.txt', '*.md',
                     '*.safetensors',
+                    # '*.tar'
                 ]  # 我不断在检查和总结的torch相关的文件。
             )
         else:
