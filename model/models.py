@@ -1,11 +1,19 @@
 """
-当前项目模型的整体及其变体。
+基于原生torch对于模型的定义。
 
-是通用的基于nn.Module定义的模型。
+基础依然是基于torch.nn.Module定义的模型。
+
+约定:
+    - 在这个位置的是整体模型，为实验需求需要易于变动。
 """
+
+from __future__ import annotations
 
 import torch
 import torch.nn as nn
+
+from typing import TYPE_CHECKING
+# if TYPE_CHECKING:
 
 
 # TODO: 可以设计Interface以实现更好的通用性。
