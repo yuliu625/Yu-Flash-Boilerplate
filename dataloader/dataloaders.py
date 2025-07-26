@@ -2,10 +2,16 @@
 原始的torch中的对于dataloader的定义。
 """
 
+from __future__ import annotations
+
 from dataloader.dataset import CommonDataset
 from dataloader.collate_fn import collate_fn
 
 from torch.utils.data import DataLoader
+
+from typing import TYPE_CHECKING, Callable
+if TYPE_CHECKING:
+    from torch.utils.data import Dataset
 
 
 class DataLoaderFactory:
