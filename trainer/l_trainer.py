@@ -5,16 +5,20 @@
 封装大量的重复配置项。几乎不用重写。
 """
 
+from __future__ import annotations
+
 from dataloader import DataLoaderFactory
 from trainer.l_model import LightningModel
 from trainer.l_callback import CallbackFactory
 from trainer.l_logger import LoggerFactory
 
 import torch
-
 import lightning as pl
-
+from pathlib import Path
 from omegaconf import OmegaConf
+
+from typing import TYPE_CHECKING
+# if TYPE_CHECKING:
 
 
 class LightningTrainer:
