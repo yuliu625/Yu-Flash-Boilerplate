@@ -1,20 +1,26 @@
 """
-lightning中的DataModule。
+lightning提供的DataModule。
+
+优越性:
+    - 自动管理数据，自行控制CPU和GPU的memory。
+    - 分布式环境支持。
 
 这个类可以代替torch中原本的dataloader相关的设置，在分布式环境下有很大好处。
 为了通用性，我依然更多的使用原本的dataloader来定义数据的加载和处理。
 而完全是自己的工程，我会使用这个模块。
 """
 
+from __future__ import annotations
+
 from dataloader.dataset import CommonDataset
 from dataloader.collate_fn import collate_fn
 
 import lightning as pl
 from torch.utils.data import DataLoader
-
 import torch
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+# if TYPE_CHECKING:
 
 
 class LDataModule(pl.LightningDataModule):
