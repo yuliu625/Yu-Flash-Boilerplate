@@ -1,7 +1,5 @@
 """
-分类任务会用到。
-
-这里定义了很多label_map
+在分类任务下定义的label_map。
 """
 
 label_map = {
