@@ -1,6 +1,6 @@
 defaults:
   - _self_
-#  - + module: module
+#  - + torch_modules: torch_modules
 
 backbone:
   choice: wav2vec2
