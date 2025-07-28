@@ -1,6 +1,6 @@
 defaults:
   - _self_
-#  - dataset: dataset
+#  - torch_datasets: torch_datasets
 
 dataset_global:
   file:
@@ -16,29 +16,29 @@ dataloader_global:
   num_workers: 4
 
 train_dataloader:
-  batch_size: ${dataloader.dataloader_global.batch_size}
-  num_workers: ${dataloader.dataloader_global.num_workers}
+  batch_size: ${torch_dataloaders.dataloader_global.batch_size}
+  num_workers: ${torch_dataloaders.dataloader_global.num_workers}
   shuffle: True
 
 val_dataloader:
-  batch_size: ${dataloader.dataloader_global.batch_size}
-  num_workers: ${dataloader.dataloader_global.num_workers}
+  batch_size: ${torch_dataloaders.dataloader_global.batch_size}
+  num_workers: ${torch_dataloaders.dataloader_global.num_workers}
   shuffle: False
 
 #dataset部分有2个具体名称可能需要修改。
 dataset:
   train_dataset:
     control_file:
-      path: ${dataloader.dataset_global.file.control_file_dir_path}/train_data.json
+      path: ${torch_dataloaders.dataset_global.file.control_file_dir_path}/train_data.json
     file:
-      file_dir_path: ${dataloader.dataset_global.file.file_dir_path}
+      file_dir_path: ${torch_dataloaders.dataset_global.file.file_dir_path}
     processor:
-      path: ${dataloader.dataset_global.processor.path}
+      path: ${torch_dataloaders.dataset_global.processor.path}
 
   val_dataset:
     control_file:
-      path: ${dataloader.dataset_global.file.control_file_dir_path}/val_data.json
+      path: ${torch_dataloaders.dataset_global.file.control_file_dir_path}/val_data.json
     file:
-      file_dir_path: ${dataloader.dataset_global.file.file_dir_path}
+      file_dir_path: ${torch_dataloaders.dataset_global.file.file_dir_path}
     processor:
-      path: ${dataloader.dataset_global.processor.path}
+      path: ${torch_dataloaders.dataset_global.processor.path}
