@@ -9,4 +9,4 @@
 
 
 # 一般情况下，仅对外暴露各种结构的model。
-from .torch_models import CommonModel
+from .torch_models import NormalModel
