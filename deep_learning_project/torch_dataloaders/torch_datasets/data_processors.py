@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 # if TYPE_CHECKING:
 
 
-class Processor:
+class DataProcessor:
     """
     original data处理方法。
 
