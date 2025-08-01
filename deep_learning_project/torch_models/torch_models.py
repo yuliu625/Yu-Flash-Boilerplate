@@ -17,8 +17,11 @@ from typing import TYPE_CHECKING
 
 
 # TODO: 可以设计Interface以实现更好的通用性。
-class CommonModel(nn.Module):
-    def __init__(self, config: dict):
+class NormalModel(nn.Module):
+    def __init__(
+        self,
+        config: dict,
+    ):
         super().__init__()
         # 导入配置并分配。
         self.config = config
@@ -31,7 +34,10 @@ class CommonModel(nn.Module):
         if self.is_freeze:
             self.freeze()
 
-    def forward(self, inputs):
+    def forward(
+        self,
+        inputs,
+    ):
         outputs = self.backbone(inputs)
         return outputs
 
@@ -39,14 +45,3 @@ class CommonModel(nn.Module):
         for param in self.backbone.parameters():
             param.requires_grad = False
 
-
-if __name__ == '__main__':
-    """在这里模拟输入，不需要真的使用dataloader。"""
-    torch.Size([1, 19, 3, 224, 224])
-    example_input_array = torch.rand(1, 5, 3, 224, 224)
-    model = CommonModel({
-
-    })
-    outputs = model(example_input_array)
-    print(outputs)
-    print(outputs.shape)
