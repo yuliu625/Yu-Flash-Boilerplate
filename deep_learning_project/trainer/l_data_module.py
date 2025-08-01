@@ -13,12 +13,12 @@ lightning提供的DataModule。
 from __future__ import annotations
 
 from deep_learning_project.torch_dataloaders.torch_datasets import DFDataset
-from deep_learning_project.torch_dataloaders.collate_fn import collate_fn
+from deep_learning_project.torch_dataloaders.collate_fn_factory import collate_fn
 
 import lightning as pl
 from torch.utils.data import DataLoader
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 # if TYPE_CHECKING:
 
 
@@ -28,7 +28,10 @@ class LDataModule(pl.LightningDataModule):
 
     绝大多数情况下，我只会定义train和val。
     """
-    def __init__(self, config: dict):
+    def __init__(
+        self,
+        config: dict,
+    ):
         # 这里仅放简单的设置和超参数。
         super().__init__()
         self.config = config
@@ -39,15 +42,18 @@ class LDataModule(pl.LightningDataModule):
     #     我仅在文档中看到使用这个方法下载数据集。
     #     """
 
-    def setup(self, stage: Literal['fit', 'validate', 'test', 'predict'] = None) -> None:
+    def setup(
+        self,
+        stage: Literal['fit', 'validate', 'test', 'predict'],
+    ) -> None:
         """
         在这里实现原本dataset的实例化。
         将各种dataset的动态加载到对象属性上。虽然更好的工程代码不应该这么做，但是这里这样写很方便。
         """
-        if stage == 'fit' or stage is None:
+        if stage == 'fit':
             self.train_dataset = DFDataset(self.config)
             self.val_dataset = DFDataset(self.config)
-        if stage == 'validate' or stage is None:
+        if stage == 'validate':
             self.val_dataset = DFDataset(self.config)
         # if stage == 'test' or stage is None:
         #     self.test_dataset = CommonDataset(self.config)
@@ -78,10 +84,13 @@ class LDataModule(pl.LightningDataModule):
     # def predict_dataloader(self):
     #     return DataLoader(self.predict_dataset,)
 
-    def teardown(self, stage: Literal['fit', 'validate', 'test', 'predict'] = None) -> None:
-        if stage == 'fit' or stage is None:
+    def teardown(
+        self,
+        stage: Literal['fit', 'validate', 'test', 'predict'],
+    ) -> None:
+        if stage == 'fit':
             self.train_dataset = None
             self.val_dataset = None
-        if stage == 'validate' or stage is None:
+        if stage == 'validate':
             self.val_dataset = None
 
