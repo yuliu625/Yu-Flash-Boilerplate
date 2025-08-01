@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from deep_learning_project.torch_models import CommonModel
+from deep_learning_project.torch_models import NormalModel
 
 import torch
 import torch.nn as nn
@@ -35,7 +35,7 @@ class LightningModel(pl.LightningModule):
         self.criterion_config = self.model_config['criterion']
 
         # 设置模型
-        self.model = CommonModel(self.model_config)
+        self.model = NormalModel(self.model_config)
         # 设置损失函数
         self.loss_fn = self.choose_loss_fn(self.criterion_config['loss_fn']['name'])
         # 设置优化器
