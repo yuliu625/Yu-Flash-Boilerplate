@@ -7,4 +7,4 @@
 # __all__ = []
 
 
-from .l_trainer import LightningTrainer
+from .l_trainer_builder import LightningTrainerBuilder
