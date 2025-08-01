@@ -7,7 +7,7 @@
 
 from .run_dataset import get_dataset
 
-from deep_learning_project.torch_dataloaders.collate_fn import collate_fn
+from deep_learning_project.torch_dataloaders.collate_fn_factory import collate_fn
 
 from torch.utils.data import DataLoader
 
