@@ -2,7 +2,7 @@
 实例化一个processor，查看其对于数据的转换。
 """
 
-from deep_learning_project.torch_dataloaders.torch_datasets.processor import Processor
+from deep_learning_project.torch_dataloaders.torch_datasets.processors import Processor
 
 from pathlib import Path
 
