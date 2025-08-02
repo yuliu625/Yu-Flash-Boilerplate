@@ -2,13 +2,13 @@
 实例化一个processor，查看其对于数据的转换。
 """
 
-from deep_learning_project.torch_dataloaders.torch_datasets.processors import Processor
+from deep_learning_project.torch_dataloaders.torch_datasets.data_processors import DataProcessor
 
 from pathlib import Path
 
 
 def check_processor(config, data_path_str: str):
-    processor = Processor(config)
+    processor = DataProcessor(config)
     data_path = Path(data_path_str)
     result = processor(data_path)
     return result
