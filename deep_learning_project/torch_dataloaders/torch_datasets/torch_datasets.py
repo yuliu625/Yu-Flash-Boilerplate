@@ -62,7 +62,9 @@ class DFDataset(Dataset):
         self,
         data,
     ) -> torch.Tensor:
-        """可以用一个工具类来实现，处理完需要是tensor。"""
+        """
+        可以用一个工具类来实现，处理完需要是tensor。
+        """
 
 
 class ControlDataset(Dataset):
