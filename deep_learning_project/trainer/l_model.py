@@ -18,17 +18,22 @@ import torch.optim as optim
 import lightning as pl
 import torchmetrics
 
-
+from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
 
 
-class LightningModel(pl.LightningModule):
+class LModel(pl.LightningModule):
     """
     lightning中本身的做法。
 
     我根据lightning的设计，对配置文件做了适配。
     """
-    def __init__(self, config):
+    def __init__(
+        self,
+        config,
+        loss_fn: nn.Module,
+        optimizer: type[optim.Optimizer],
+    ):
         super().__init__()
         self.config = config
         self.model_config = config['torch_models']
@@ -53,48 +58,53 @@ class LightningModel(pl.LightningModule):
         self.example_input_array = torch.rand(4, 2000)
 
     def forward(self, x):
-        """一些情况下，需要实现forward来避免报错。"""
+        """
+        一些情况下，需要实现forward来避免报错。
+        """
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        """必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。"""
+        """
+        必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。
+        """
         # 获取数据
-        labels = batch['labels']
+        targets = batch['labels']
         inputs = batch['datas']
-
         # 前向传播
         outputs = self.model(inputs)
-
         # 计算训练损失
         # TODO: 之后需要考虑自定义更加复杂的损失函数和多阶段训练流程。
-        loss = self.loss_fn(outputs, labels)
-
+        loss = self.loss_fn(outputs, targets)
         # 日志
         self.log('train_loss', loss)
         return loss  # 这里的返回是反向传播和优化器需要的。
 
     def configure_optimizers(self):
-        """必要的，设置优化器。"""
-        optimizer = optim.AdamW(self.model.parameters(), lr=self.config.lr)
+        """
+        必要的，设置优化器。
+        """
+        optimizer = optim.AdamW(
+            params=self.model.parameters(),
+            lr=self.config.lr,
+        )
         return optimizer
 
     def validation_step(self, batch, batch_idx):
-        """应该的，验证模型。"""
+        """
+        应该的，验证模型。
+        """
         # 获取数据
-        labels = batch['labels']
+        targets = batch['targets']
         inputs = batch['datas']
-
         # 前向传播
         outputs = self.model(inputs)
-
         # 测试损失
-        loss = self.loss_fn(outputs, labels)
-
+        loss = self.loss_fn(outputs, targets)
         # 这里应该还有测试指标。
-        accuracy = self.accuracy_fn(outputs, labels)
-        precision = self.precision_fn(outputs, labels)
-        recall = self.recall_fn(outputs, labels)
-        f1_score = self.f1_score_fn(outputs, labels)
+        accuracy = self.accuracy_fn(outputs, targets)
+        precision = self.precision_fn(outputs, targets)
+        recall = self.recall_fn(outputs, targets)
+        f1_score = self.f1_score_fn(outputs, targets)
 
         # 日志
         self.log('val_loss', loss)
@@ -102,8 +112,7 @@ class LightningModel(pl.LightningModule):
         self.log('val_precision', precision)
         self.log('val_recall', recall)
         self.log('val_f1_score', f1_score)
-        # 也可以用self.log_dict({})，但我不用。
-
+        # 也可以用self.log_dict({})。
         return {
             'val_loss': loss,
             'val_accuracy': accuracy,
