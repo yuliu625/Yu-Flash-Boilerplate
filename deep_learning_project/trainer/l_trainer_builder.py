@@ -8,9 +8,9 @@
 from __future__ import annotations
 
 from deep_learning_project.torch_dataloaders import DataLoaderFactory
-from deep_learning_project.trainer.l_model import LightningModel
+from deep_learning_project.trainer.l_model import LModel
 from deep_learning_project.trainer.l_callback import CallbackFactory
-from deep_learning_project.trainer.l_logger import LoggerFactory
+from deep_learning_project.trainer.l_logger_factory import LoggerFactory
 
 import lightning as pl
 from omegaconf import OmegaConf
@@ -58,12 +58,12 @@ class LightningTrainerBuilder:
         """
         dataloader_factory = DataLoaderFactory(self.dataloader_config)
         train_dataloader = dataloader_factory.create_train_dataloader()
-        val_dataloader = dataloader_factory.create_val_dataloader()
+        val_dataloader = dataloader_factory.create_validate_dataloader()
         return train_dataloader, val_dataloader
 
     def build_model(self):
         """构建模型。"""
-        model = LightningModel(self.config)
+        model = LModel(self.config)
         # 断点续训判断
         return model
 
