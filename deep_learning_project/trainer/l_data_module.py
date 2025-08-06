@@ -20,8 +20,9 @@ from deep_learning_project.torch_dataloaders.torch_dataloader_factory import Dat
 
 import lightning as pl
 
-from typing import TYPE_CHECKING, Literal
-# if TYPE_CHECKING:
+from typing import TYPE_CHECKING, Optional
+if TYPE_CHECKING:
+    from torch.utils.data import DataLoader
 
 
 class LDataModule(pl.LightningDataModule):
@@ -43,11 +44,45 @@ class LDataModule(pl.LightningDataModule):
     """
     def __init__(
         self,
-        config: dict,
+        train_dataset_config: dict,
+        train_dataloader_config: dict,
+        val_dataset_config: dict,
+        val_dataloader_config: dict,
+        test_dataset_config: Optional[dict] = None,
+        test_dataloader_config: Optional[dict] = None,
+        predict_dataset_config: Optional[dict] = None,
+        predict_dataloader_config: Optional[dict] = None,
     ):
+        """
+        仅以可序列化数据构建DataModule。
+
+        参数指定的必要性:
+            - train和val相关的设置是必要的，需要进行模型的正常训练。
+            - test是增加完整性的部分，可以不指定。
+            - predict无必要，在有checkpoint的情况下，可以自行构建推理方法。
+
+        可进行的扩展:
+            - 对于具体输入的schema进行限制。
+
+        Args:
+            train_dataset_config (dict): 训练数据集需要的配置，具体实现由dataset-factory实现。
+            train_dataloader_config (dict): 训练数据加载器需要的配置，具体实现由dataloader-factory实现。
+            val_dataset_config (dict): 验证数据集需要的配置，具体实现由dataset-factory实现。
+            val_dataloader_config (dict): 验证数据加载器需要的配置，具体实现由dataloader-factory实现。
+            test_dataset_config (Optional[dict]): 测试数据集需要的配置，具体实现由dataset-factory实现。
+            test_dataloader_config (Optional[dict]): 测试数据加载器需要的配置，具体实现由dataloader-factory实现。
+            predict_dataset_config (Optional[dict]): 预测数据集需要的配置，具体实现由dataset-factory实现。
+            predict_dataloader_config (Optional[dict]): 预测数据加载器需要的配置，具体实现由dataloader-factory实现。
+        """
         super().__init__()
-        # 这里仅放简单的设置和超参数。
-        self.config = config
+        self.train_dataset_config = train_dataset_config
+        self.train_dataloader_config = train_dataloader_config
+        self.val_dataset_config = val_dataset_config
+        self.val_dataloader_config = val_dataloader_config
+        self.test_dataset_config = test_dataset_config
+        self.test_dataloader_config = test_dataloader_config
+        self.predict_dataset_config = predict_dataset_config
+        self.predict_dataloader_config = predict_dataloader_config
 
     # 在我约定的实现中，并不会使用这个方法。
     # 这个方法的意义是，在分布式环境下，限制相关方法仅由主节点执行。
@@ -55,6 +90,7 @@ class LDataModule(pl.LightningDataModule):
     # def prepare_data(self):
     #     ...
 
+    # ====dataset-factory实现需要对接的方法。====
     def setup(
         self,
         stage=None,
@@ -77,46 +113,44 @@ class LDataModule(pl.LightningDataModule):
                 - 这个方法由L.Trainer控制，人为干预较少。
         """
         if stage == 'fit' or stage is None:
-            self.train_dataset = DatasetFactory.create_train_dataset()
-            self.val_dataset = DatasetFactory.create_validate_dataset()
+            self.train_dataset = DatasetFactory.create_train_dataset(**self.train_dataset_config)
+            self.val_dataset = DatasetFactory.create_validate_dataset(**self.val_dataset_config)
         if stage == 'validate' or stage is None:
-            self.val_dataset = DatasetFactory.create_validate_dataset()
+            self.val_dataset = DatasetFactory.create_validate_dataset(**self.val_dataset_config)
         if stage == 'test' or stage is None:
-            self.test_dataset = DatasetFactory.create_test_dataset()
+            self.test_dataset = DatasetFactory.create_test_dataset(**self.test_dataset_config)
         if stage == 'predict' or stage is None:
-            self.predict_dataset = DatasetFactory.create_predict_dataset()
+            self.predict_dataset = DatasetFactory.create_predict_dataset(**self.predict_dataset_config)
 
-    def train_dataloader(self):
+    """
+    <!--dataloader的自动获取方法-start-->
+    """
+
+    def train_dataloader(self) -> DataLoader:
         return DataLoaderFactory.create_train_dataloader(
             train_dataset=self.train_dataset,
+            **self.train_dataloader_config,
         )
 
-    def val_dataloader(self):
+    def val_dataloader(self) -> DataLoader:
         return DataLoaderFactory.create_val_dataloader(
             val_dataset=self.val_dataset,
+            **self.val_dataloader_config,
         )
 
-    def test_dataloader(self):
+    def test_dataloader(self) -> DataLoader:
         return DataLoaderFactory.create_test_dataloader(
             test_dataset=self.test_dataset,
+            **self.test_dataloader_config,
         )
 
-    def predict_dataloader(self):
+    def predict_dataloader(self) -> DataLoader:
         return DataLoaderFactory.create_predict_dataloader(
             predict_dataset=self.predict_dataset,
+            **self.predict_dataloader_config,
         )
 
-    def teardown(
-        self,
-        stage: Literal['fit', 'validate', 'test', 'predict'],
-    ) -> None:
-        if stage == 'fit':
-            self.train_dataset = None
-            self.val_dataset = None
-        if stage == 'validate':
-            self.val_dataset = None
-        if stage == 'test':
-            self.test_dataset = None
-        if stage == 'predict':
-            self.predict_dataset = None
+    """
+    <!--dataloader的自动获取方法-end-->
+    """
 
