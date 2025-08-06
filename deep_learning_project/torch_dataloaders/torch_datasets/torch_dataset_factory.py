@@ -17,19 +17,31 @@ from typing import TYPE_CHECKING
 
 class DatasetFactory:
     @staticmethod
+    def create_dataset(
+
+    ) -> Dataset:
+        ...
+
+    @staticmethod
     def create_train_dataset(
 
     ) -> Dataset:
         ...
 
     @staticmethod
-    def create_val_dataset(
+    def create_validate_dataset(
 
     ) -> Dataset:
         ...
 
     @staticmethod
-    def create_dataset(
+    def create_test_dataset(
+
+    ) -> Dataset:
+        ...
+
+    @staticmethod
+    def create_predict_dataset(
 
     ) -> Dataset:
         ...
