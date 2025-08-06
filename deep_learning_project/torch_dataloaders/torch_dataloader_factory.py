@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+from .collate_fn_factory import CollateFnFactory
+
 from torch.utils.data import DataLoader
 
 from typing import TYPE_CHECKING, Callable
@@ -19,6 +21,10 @@ class DataLoaderFactory:
     """
     生成dataloader的工厂。
 
+    参数没有完全实现以序列化数据构建的原因是:
+        - dataset的构建更好的实践是与dataloader分离。
+        - 对于lightning，dataset会由DataModule中其他方法动态提供和管理。
+
     提供的基础方法:
         - create_dataloader: 构建dataloader的方法，规定了需要的参数。
 
@@ -30,7 +36,7 @@ class DataLoaderFactory:
     @staticmethod
     def create_train_dataloader(
         train_dataset: Dataset,
-        collate_fn: Callable[..., torch.Tensor],
+        collate_fn_name: str,
         batch_size: int,
         is_shuffle: bool,
         num_workers: int,
@@ -53,14 +59,14 @@ class DataLoaderFactory:
     @staticmethod
     def create_val_dataloader(
         val_dataset: Dataset,
-        collate_fn: Callable[..., torch.Tensor],
+        collate_fn_name: str,
         batch_size: int,
         is_shuffle: bool,
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
         # 设置dataset。
-        # dataset的可以以依赖注入的方式进行，也可以在这里构建
+        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
         # 设置dataloader。
         val_dataloader = DataLoaderFactory.create_dataloader(
             dataset=val_dataset,
@@ -68,9 +74,55 @@ class DataLoaderFactory:
             is_shuffle=is_shuffle,
             batch_size=batch_size,
             num_workers=num_workers,
-            **dataloader_kwargs
+            **dataloader_kwargs,
         )
         return val_dataloader
+
+    # ====暴露方法。需要实现的方法。====
+    @staticmethod
+    def create_test_dataloader(
+        test_dataset: Dataset,
+        collate_fn_name: str,
+        batch_size: int,
+        is_shuffle: bool,
+        num_workers: int,
+        dataloader_kwargs: dict,
+    ) -> DataLoader:
+        # 设置dataset。
+        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
+        # 设置dataloader。
+        test_dataloader = DataLoaderFactory.create_dataloader(
+            dataset=test_dataset,
+            collate_fn=collate_fn,
+            is_shuffle=is_shuffle,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            **dataloader_kwargs,
+        )
+        return test_dataloader
+
+    # ====暴露方法。需要实现的方法。====
+    @staticmethod
+    def create_predict_dataloader(
+        predict_dataset: Dataset,
+        collate_fn_name: str,
+        batch_size: int,
+        is_shuffle: bool,
+        num_workers: int,
+        dataloader_kwargs: dict,
+    ) -> DataLoader:
+        # 设置dataset。
+        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
+        # 设置dataloader。
+        predict_dataloader = DataLoaderFactory.create_dataloader(
+            dataset=predict_dataset,
+            collate_fn=collate_fn,
+            is_shuffle=is_shuffle,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            **dataloader_kwargs,
+        )
+        return predict_dataloader
 
     # ====基础方法。====
     @staticmethod
