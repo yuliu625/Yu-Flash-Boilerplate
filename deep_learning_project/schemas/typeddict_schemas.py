@@ -35,12 +35,12 @@ class LightningModelConfig(TypedDict):
 
 class TorchLossFn(TypedDict):
     loss_fn_name: str
-    loss_fn_kwargs: dict
+    loss_fn_config: dict
 
 
 class TorchMetric(TypedDict):
     metric_name: str
-    metric_kwargs: dict
+    metric_config: dict
 
 
 """<!--model-end-->"""
