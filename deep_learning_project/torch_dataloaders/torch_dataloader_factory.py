@@ -11,9 +11,8 @@ from .collate_fn_factory import CollateFnFactory
 
 from torch.utils.data import DataLoader
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    import torch
     from torch.utils.data import Dataset
 
 
@@ -42,12 +41,10 @@ class DataLoaderFactory:
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
-        # 设置dataset。
-        # dataset的可以以依赖注入的方式进行，也可以在这里构建
         # 设置dataloader。
         train_dataloader = DataLoaderFactory.create_dataloader(
             dataset=train_dataset,
-            collate_fn=collate_fn,
+            collate_fn_name=collate_fn_name,
             is_shuffle=is_shuffle,
             batch_size=batch_size,
             num_workers=num_workers,
@@ -65,12 +62,10 @@ class DataLoaderFactory:
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
-        # 设置dataset。
-        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
         # 设置dataloader。
         val_dataloader = DataLoaderFactory.create_dataloader(
             dataset=val_dataset,
-            collate_fn=collate_fn,
+            collate_fn_name=collate_fn_name,
             is_shuffle=is_shuffle,
             batch_size=batch_size,
             num_workers=num_workers,
@@ -88,12 +83,10 @@ class DataLoaderFactory:
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
-        # 设置dataset。
-        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
         # 设置dataloader。
         test_dataloader = DataLoaderFactory.create_dataloader(
             dataset=test_dataset,
-            collate_fn=collate_fn,
+            collate_fn_name=collate_fn_name,
             is_shuffle=is_shuffle,
             batch_size=batch_size,
             num_workers=num_workers,
@@ -111,12 +104,10 @@ class DataLoaderFactory:
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
-        # 设置dataset。
-        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
         # 设置dataloader。
         predict_dataloader = DataLoaderFactory.create_dataloader(
             dataset=predict_dataset,
-            collate_fn=collate_fn,
+            collate_fn_name=collate_fn_name,
             is_shuffle=is_shuffle,
             batch_size=batch_size,
             num_workers=num_workers,
@@ -128,12 +119,17 @@ class DataLoaderFactory:
     @staticmethod
     def create_dataloader(
         dataset: Dataset,
-        collate_fn: Callable[..., torch.Tensor],
+        collate_fn_name: str,
         batch_size: int,
         is_shuffle: bool,
         num_workers: int,
         dataloader_kwargs: dict,
     ) -> DataLoader:
+        # 设置dataset。
+        # dataset的可以以依赖注入的方式进行，也可以在这里构建。
+        collate_fn = CollateFnFactory.create_collate_fn(
+            collate_fn_name=collate_fn_name,
+        )
         # 设置dataloader。
         dataloader = DataLoader(
             dataset=dataset,
