@@ -28,7 +28,11 @@ class LModel(pl.LightningModule):
     """
     基于lightningModule构建的模型。
 
+    这是个足够好的样例，但必要的情况下可以进行修改。
 
+    没有进行规范项目的类型标注的原因是:
+        - lightning项目的约定大于配置惯例。
+        - 存在为复杂项目修改的空间。
     """
     def __init__(
         self,
@@ -48,10 +52,6 @@ class LModel(pl.LightningModule):
         self.optimizer_configs = optimizer_configs
         # 设置评估函数
         self.metrics_list = metrics_list
-        # self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
-        # self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
-        # self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
-        # self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
 
         # 额外的设置。
         # 保存模型配置的超参数。由于低耦合的设计模式，这个方法并没有被使用。
@@ -64,7 +64,9 @@ class LModel(pl.LightningModule):
         inputs: torch.Tensor,
     ) -> torch.Tensor:
         """
-        一些情况下，需要实现forward来避免报错。
+        继承torch.nn.Module的forward方法。
+
+        实现这个方法，以对外表现得和torch-model一致。
         """
         outputs: torch.Tensor = self.torch_model(inputs)
         return outputs
@@ -72,7 +74,17 @@ class LModel(pl.LightningModule):
     # ====必要的实现。====
     def training_step(self, batch, batch_idx):
         """
-        必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。
+        必要的训练步。
+
+        实现:
+            - 前向传播。
+            - 计算损失。
+
+        可为复杂项目进行的修改:
+            - 自定义优化器计算过程。
+
+        注意:
+            - batch_idx参数在该方法中不显式使用，但lightning的自动运行会使用，不可删除。
         """
         # 获取数据。
         targets: torch.Tensor = batch['targets']
@@ -91,7 +103,13 @@ class LModel(pl.LightningModule):
     # ====必要的实现。====
     def configure_optimizers(self):
         """
-        必要的，设置优化器。
+        必要的，设定优化器。
+
+        可为复杂项目进行的修改:
+            - 多优化器。适应场景为:
+                - 多任务。
+                - 多阶段。
+                - 复合模型。
         """
         optimizer = self.optimizer_class(
             params=self.torch_model.parameters(),
@@ -102,7 +120,9 @@ class LModel(pl.LightningModule):
     # ====必要的实现。====
     def validation_step(self, batch, batch_idx):
         """
-        应该的，验证模型。
+        应该的，验证模型步。
+
+        对于模型的结果进行评测。
         """
         # 获取数据。
         targets: torch.Tensor = batch['targets']
