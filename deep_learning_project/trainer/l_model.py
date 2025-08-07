@@ -40,7 +40,7 @@ class LModel(pl.LightningModule):
         loss_fn: torch.nn.Module,
         optimizer_class: type[torch.optim.Optimizer],
         optimizer_configs: dict,
-        metrics_list: list[dict[str, torchmetrics.Metric]],
+        metrics_list: list[dict[str, str | torchmetrics.Metric]],
     ):
         super().__init__()
         # 设置模型
@@ -139,7 +139,7 @@ class LModel(pl.LightningModule):
         metrics_log = {}
         for metric_dict in self.metrics_list:
             # 进行评测计算。
-            metrics_value = metric_dict['metric'](outputs, targets)
+            metrics_value = metric_dict['metric_fn'](outputs, targets)
             # 日志记录。
             self.log(
                 name=f'{metric_dict['metric_name']}',
