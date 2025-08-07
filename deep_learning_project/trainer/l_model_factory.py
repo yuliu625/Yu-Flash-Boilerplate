@@ -64,7 +64,7 @@ class LModelFactory:
             torch_model=torch_model,
             loss_fn=loss_fn,
             optimizer_class=optimizer_class,
-            optimizer_configs=optimizer_config,
+            optimizer_config=optimizer_config,
             metrics_list=metrics_list,
         )
         return l_model
