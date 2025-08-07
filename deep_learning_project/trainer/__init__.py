@@ -1,10 +1,6 @@
 """
-进行模型训练的工具。
+构建模型训练需要的对象。
 
 主要封装了lightning的训练操作。
 """
 
-# __all__ = []
-
-
-from .l_trainer_builder import LightningTrainerBuilder
