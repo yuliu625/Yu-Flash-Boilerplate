@@ -73,6 +73,13 @@ class CallbackFactory:
 
 class LCallbackFactory:
     @staticmethod
+    def create_callback(
+        callback_name: str,
+        callback_kwargs: dict,
+    ) -> Callback:
+        ...
+
+    @staticmethod
     def create_model_checkpoint_callback(
         callback_kwargs: dict,
     ) -> Callback:
