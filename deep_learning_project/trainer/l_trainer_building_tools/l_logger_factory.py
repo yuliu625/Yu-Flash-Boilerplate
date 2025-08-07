@@ -63,6 +63,7 @@ class LLoggerFactory:
     @staticmethod
     def create_logger(
         logger_name: str,
+        logger_kwargs: dict,
     ) -> Logger:
         ...
 
