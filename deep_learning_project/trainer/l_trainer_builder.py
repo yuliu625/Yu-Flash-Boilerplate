@@ -1,5 +1,5 @@
 """
-封装了lightning的trainer。
+lightning提供的Trainer。
 
 这个boilerplate最重要的部分。
 封装大量的重复配置项。几乎不用重写。
@@ -7,22 +7,27 @@
 
 from __future__ import annotations
 
-from deep_learning_project.torch_dataloaders import DataLoaderFactory
-from deep_learning_project.trainer.l_model import LModel
-from deep_learning_project.trainer.l_callback import CallbackFactory
-from deep_learning_project.trainer.l_logger_factory import LoggerFactory
+from .l_model import LModel
+from .trainer_building_tools.l_callback_factory import LCallbackFactory
+from .trainer_building_tools.l_logger_factory import LLoggerFactory
 
 import lightning as pl
 from omegaconf import OmegaConf
 
-# if TYPE_CHECKING:
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from lightning.pytorch.callbacks import Callback
+    from lightning.pytorch.loggers import Logger
 
 
 class LightningTrainerBuilder:
     """
-    封装了lightning trainer的流程。
+    构建pl.Trainer的方法。
     """
-    def __init__(self, config: dict) -> None:
+    def __init__(
+        self,
+        config: dict,
+    ) -> None:
         """
         :param config: 这是一个总的配置文件。
         """
@@ -50,7 +55,10 @@ class LightningTrainerBuilder:
 
         self.trainer = self.build_trainer()
 
-    def build_dataloader(self):
+    # TODO: 待修改。trainer的构建和data-module无关，训练才会使用data-module。
+    def build_lightning_data_module(
+        self,
+    ) -> pl.LightningDataModule:
         """
         构建dataloader。
         由于这里我使用了工厂模式，这段代码高度复用不需要修改。
@@ -61,13 +69,19 @@ class LightningTrainerBuilder:
         val_dataloader = dataloader_factory.create_validate_dataloader()
         return train_dataloader, val_dataloader
 
-    def build_model(self):
+    # TODO: 待修改。trainer的构建和model无关，训练才会使用model。
+    def build_lightning_model(
+        self,
+    ) -> pl.LightningModule:
         """构建模型。"""
         model = LModel(self.config)
         # 断点续训判断
         return model
 
-    def build_trainer(self, mode: str = 'train') -> pl.Trainer:
+    def build_lightning_trainer(
+        self,
+        mode: str = 'train',
+    ) -> pl.Trainer:
         trainer_base_config = {
             'default_root_dir': self.trainer_config['default_root_dir'],
             'max_epochs': self.trainer_config['max_epochs'],
@@ -95,12 +109,18 @@ class LightningTrainerBuilder:
         trainer = pl.Trainer(**trainer_base_config)
         return trainer
 
-    def build_callbacks(self):
+    # ====工具方法。====
+    def build_callbacks(
+        self,
+    ) -> list[Callback]:
         callback_factory = CallbackFactory(self.callbacks_config)
         callbacks = callback_factory.get_callbacks()
         return callbacks
 
-    def build_logger(self):
+    # ====工具方法。====
+    def build_loggers(
+        self,
+    ) -> list[Logger]:
         logger_factory = LoggerFactory(self.loggers_config)
         loggers = logger_factory.get_loggers()
         return loggers
@@ -111,6 +131,7 @@ class LightningTrainerBuilder:
         for logger in self.loggers:
             logger.log_hyperparams(config_dict)
 
+    # TODO: 待修改。执行训练的代码不和trainer绑定在一起。
     def train(self, mode: str = 'train'):
         """进行训练。"""
         train_base_config = {
