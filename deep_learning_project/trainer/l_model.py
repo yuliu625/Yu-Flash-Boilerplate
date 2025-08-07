@@ -16,52 +16,46 @@ LightningModule的特点:
 
 from __future__ import annotations
 
-from deep_learning_project.torch_models import NormalModel
-
 import torch
-import torch.nn as nn
-import torch.optim as optim
 import lightning as pl
-import torchmetrics
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from torch import Tensor
+    import torchmetrics
 
 
 class LModel(pl.LightningModule):
     """
-    lightning中本身的做法。
-
-    我根据lightning的设计，对配置文件做了适配。
+    基于lightning构建模型。
     """
     def __init__(
         self,
-        model: nn.Module,
-        loss_fn: nn.Module,
-        optimizer_class: type[optim.Optimizer],
-        optimizer_kwargs: dict,
-        metrics,
+        torch_model: torch.nn.Module,
+        loss_fn: torch.nn.Module,
+        optimizer_class: type[torch.optim.Optimizer],
+        optimizer_configs: dict,
+        metrics_dict: dict[str, torchmetrics.Metric],
     ):
         super().__init__()
-
         # 设置模型
-        self.model = model
+        self.torch_model = torch_model
         # 设置损失函数
-        self.loss_fn = self.choose_loss_fn(self.criterion_config['loss_fn']['name'])
+        self.loss_fn = loss_fn
         # 设置优化器
-        # self.optimizer = optim.Adam(self.torch_models.parameters(), lr=self.model_config['lr'])
+        self.optimizer_class = optimizer_class
+        self.optimizer_configs = optimizer_configs
         # 设置评估函数
-        self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
-        self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
-        self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
-        self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
+        self.metrics_dict = metrics_dict
+        # self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
+        # self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
+        # self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
+        # self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
 
         # 额外的设置。
-        # 保存模型配置的超参数。
-        self.save_hyperparameters()
+        # 保存模型配置的超参数。由于低耦合的设计模式，这个方法并没有被使用。
+        # self.save_hyperparameters()
         # 测试模型的输入，会在summary table中展现。
-        self.example_input_array = torch.rand(4, 2000)
+        # self.example_input_array = torch.rand(4, 2000)
 
     def forward(
         self,
@@ -70,7 +64,7 @@ class LModel(pl.LightningModule):
         """
         一些情况下，需要实现forward来避免报错。
         """
-        outputs: torch.Tensor = self.model(inputs)
+        outputs: torch.Tensor = self.torch_model(inputs)
         return outputs
 
     def training_step(self, batch, batch_idx):
@@ -81,7 +75,7 @@ class LModel(pl.LightningModule):
         targets: torch.Tensor = batch['targets']
         inputs: torch.Tensor = batch['datas']
         # 前向传播
-        outputs: torch.Tensor = self.model(inputs)
+        outputs: torch.Tensor = self.torch_model(inputs)
         # 计算训练损失
         loss: torch.Tensor = self.loss_fn(outputs, targets)
         # 日志
@@ -92,9 +86,9 @@ class LModel(pl.LightningModule):
         """
         必要的，设置优化器。
         """
-        optimizer = optim.AdamW(
-            params=self.model.parameters(),
-            lr=self.config.lr,
+        optimizer = self.optimizer_class(
+            params=self.torch_model.parameters(),
+            **self.optimizer_config,
         )
         return optimizer
 
@@ -106,38 +100,16 @@ class LModel(pl.LightningModule):
         targets: torch.Tensor = batch['targets']
         inputs: torch.Tensor = batch['datas']
         # 前向传播
-        outputs: torch.Tensor = self.model(inputs)
+        outputs: torch.Tensor = self.torch_model(inputs)
         # 测试损失
         loss: torch.Tensor = self.loss_fn(outputs, targets)
-        # 这里应该还有测试指标。
-        accuracy: torch.Tensor = self.accuracy_fn(outputs, targets)
-        precision: torch.Tensor = self.precision_fn(outputs, targets)
-        recall: torch.Tensor = self.recall_fn(outputs, targets)
-        f1_score: torch.Tensor = self.f1_score_fn(outputs, targets)
-
-        # 日志
         self.log('val_loss', loss)
-        self.log('val_accuracy', accuracy)
-        self.log('val_precision', precision)
-        self.log('val_recall', recall)
-        self.log('val_f1_score', f1_score)
-        # 也可以用self.log_dict({})。
-        return {
-            'val_loss': loss,
-            'val_accuracy': accuracy,
-            'val_precision': precision,
-            'val_recall': recall,
-            'val_f1_score': f1_score,
-        }
-
-    def choose_loss_fn(self, choice: str):
-        if choice == 'cross_entropy':
-            return nn.CrossEntropyLoss()
-
-    def choose_metrics(self, choice: str):
-        # TODO: 这个要同时设置多个metrics该如何实现呢？直接self中添加，validation中如何知道？
-        # 似乎完全需要构建一个类才能实现，但是好像没有必要。要实现就需要动态添加属性，并同时在validation_step进行同步。
-        # 但是，metrics方法自然是越多越好，并且不怎么改动的。
-        if choice == 'accuracy':
-            return torchmetrics.Accuracy()
+        # 测试指标。
+        metrics_log = {}
+        for metric_name, metric in self.metrics_dict.items():
+            # 进行评测计算
+            metrics_value = metric(outputs, targets)
+            # 日志记录。
+            self.log(f'{metric_name}', metrics_value)
+        return metrics_log
 
