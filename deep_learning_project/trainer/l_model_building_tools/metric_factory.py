@@ -26,42 +26,42 @@ class MetricFactory:
         metric_name: Literal[
             'accuracy', 'precision', 'recall', 'f1score',
         ],
-        metric_kwargs: dict,
+        metric_config: dict,
     ) -> Metric:
         if metric_name == 'accuracy':
-            return MetricFactory.create_accuracy_metric(metric_kwargs=metric_kwargs)
+            return MetricFactory.create_accuracy_metric(metric_config=metric_config)
         elif metric_name == 'precision':
-            return MetricFactory.create_precision_metric(metric_kwargs=metric_kwargs)
+            return MetricFactory.create_precision_metric(metric_config=metric_config)
         elif metric_name == 'recall':
-            return MetricFactory.create_recall_metric(metric_kwargs=metric_kwargs)
+            return MetricFactory.create_recall_metric(metric_config=metric_config)
         elif metric_name == 'f1score':
-            return MetricFactory.create_f1score_metric(metric_kwargs=metric_kwargs)
+            return MetricFactory.create_f1score_metric(metric_config=metric_config)
 
     """<!--分类任务-start-->"""
 
     @staticmethod
     def create_accuracy_metric(
-        metric_kwargs: dict,
+        metric_config: dict,
     ) -> Metric:
-        return torchmetrics.Accuracy(**metric_kwargs)
+        return torchmetrics.Accuracy(**metric_config)
 
     @staticmethod
     def create_precision_metric(
-        metric_kwargs: dict,
+        metric_config: dict,
     ) -> Metric:
-        return torchmetrics.Precision(**metric_kwargs)
+        return torchmetrics.Precision(**metric_config)
 
     @staticmethod
     def create_recall_metric(
-        metric_kwargs: dict,
+        metric_config: dict,
     ) -> Metric:
-        return torchmetrics.Recall(**metric_kwargs)
+        return torchmetrics.Recall(**metric_config)
 
     @staticmethod
     def create_f1score_metric(
-        metric_kwargs: dict,
+        metric_config: dict,
     ) -> Metric:
-        return torchmetrics.F1Score(**metric_kwargs)
+        return torchmetrics.F1Score(**metric_config)
 
     """<!--分类任务-end-->"""
 
