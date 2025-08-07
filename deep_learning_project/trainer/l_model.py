@@ -16,17 +16,19 @@ LightningModule的特点:
 
 from __future__ import annotations
 
-import torch
 import lightning as pl
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    import torch
     import torchmetrics
 
 
 class LModel(pl.LightningModule):
     """
-    基于lightning构建模型。
+    基于lightningModule构建的模型。
+
+
     """
     def __init__(
         self,
@@ -34,7 +36,7 @@ class LModel(pl.LightningModule):
         loss_fn: torch.nn.Module,
         optimizer_class: type[torch.optim.Optimizer],
         optimizer_configs: dict,
-        metrics_dict: dict[str, torchmetrics.Metric],
+        metrics_list: list[dict[str, torchmetrics.Metric]],
     ):
         super().__init__()
         # 设置模型
@@ -45,7 +47,7 @@ class LModel(pl.LightningModule):
         self.optimizer_class = optimizer_class
         self.optimizer_configs = optimizer_configs
         # 设置评估函数
-        self.metrics_dict = metrics_dict
+        self.metrics_list = metrics_list
         # self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
         # self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
         # self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
@@ -67,21 +69,26 @@ class LModel(pl.LightningModule):
         outputs: torch.Tensor = self.torch_model(inputs)
         return outputs
 
+    # ====必要的实现。====
     def training_step(self, batch, batch_idx):
         """
         必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。
         """
-        # 获取数据
+        # 获取数据。
         targets: torch.Tensor = batch['targets']
         inputs: torch.Tensor = batch['datas']
-        # 前向传播
+        # 前向传播。
         outputs: torch.Tensor = self.torch_model(inputs)
-        # 计算训练损失
-        loss: torch.Tensor = self.loss_fn(outputs, targets)
-        # 日志
-        self.log('train_loss', loss)
-        return loss  # 这里的返回是反向传播和优化器需要的。
+        # 计算训练损失。
+        train_loss: torch.Tensor = self.loss_fn(outputs, targets)
+        # 日志。
+        self.log(
+            name='train_loss',
+            value=train_loss,
+        )
+        return train_loss  # 这里的返回是反向传播和优化器需要的。
 
+    # ====必要的实现。====
     def configure_optimizers(self):
         """
         必要的，设置优化器。
@@ -92,24 +99,31 @@ class LModel(pl.LightningModule):
         )
         return optimizer
 
+    # ====必要的实现。====
     def validation_step(self, batch, batch_idx):
         """
         应该的，验证模型。
         """
-        # 获取数据
+        # 获取数据。
         targets: torch.Tensor = batch['targets']
         inputs: torch.Tensor = batch['datas']
-        # 前向传播
+        # 前向传播。
         outputs: torch.Tensor = self.torch_model(inputs)
-        # 测试损失
-        loss: torch.Tensor = self.loss_fn(outputs, targets)
-        self.log('val_loss', loss)
+        # 测试损失。
+        val_loss: torch.Tensor = self.loss_fn(outputs, targets)
+        self.log(
+            name='val_loss',
+            value=val_loss,
+        )
         # 测试指标。
         metrics_log = {}
-        for metric_name, metric in self.metrics_dict.items():
-            # 进行评测计算
-            metrics_value = metric(outputs, targets)
+        for metric_dict in self.metrics_list:
+            # 进行评测计算。
+            metrics_value = metric_dict['metric'](outputs, targets)
             # 日志记录。
-            self.log(f'{metric_name}', metrics_value)
-        return metrics_log
+            self.log(
+                name=f'{metric_dict['metric_name']}',
+                value=metrics_value,
+            )
+        return val_loss
 
