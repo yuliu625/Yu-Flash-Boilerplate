@@ -60,6 +60,7 @@ class LoggerFactory:
 
 
 class LLoggerFactory:
+    # ====主要方法。====
     @staticmethod
     def create_logger(
         logger_name: str,
