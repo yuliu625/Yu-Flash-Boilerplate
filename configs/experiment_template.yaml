@@ -1,0 +1,19 @@
+# 一个配置文件的模板
+
+data_module_config:
+  train_dataset_config: dict
+  train_dataloader_config: dict
+  val_dataset_config: dict
+  val_dataloader_config: dict
+
+
+model_config:
+  loss_fn_name: str,
+  loss_fn_kwargs: dict,
+  optimizer_name: str,
+  optimizer_config: dict,
+  metrics_configs_list: list[dict]
+
+
+trainer_config: ''
+
