@@ -16,6 +16,9 @@ from .l_model_building_tools import (
 )
 from .l_model import LModel
 
+# 需要从torch_models模块导入基于torch定义的模型。
+# 可改进的，使用factory-pattern封装获取torch-model的方法。
+# 暂时无法避免的，需要不断修改这个导入内容。
 from deep_learning_project.torch_models.torch_models import NormalModel
 
 import torch
@@ -52,7 +55,7 @@ class LModelFactory:
             loss_fn=loss_fn,
             optimizer_class=optimizer_class,
             optimizer_configs=optimizer_config,
-            metrics_dict=metrics_dict,
+            metrics_list=metrics_dict,
         )
         return l_model
 
