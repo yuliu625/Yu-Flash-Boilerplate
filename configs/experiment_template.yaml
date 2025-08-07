@@ -8,12 +8,33 @@ data_module_config:
 
 
 model_config:
-  loss_fn_name: str,
-  loss_fn_kwargs: dict,
-  optimizer_name: str,
-  optimizer_config: dict,
-  metrics_configs_list: list[dict]
+  torch_model_name: str
+  torch_model_config: dict
+  loss_fn_name: str
+  loss_fn_config: dict
+  optimizer_name: str
+  optimizer_config: dict
+  metrics_configs_list:
+    - metric_name: ''
+      metric_kwargs: {}
+    - metric_name: ''
+      metric_kwargs: {}
 
 
-trainer_config: ''
+trainer_config:
+  trainer_base_config:
+    default_root_dir: ''
+    max_epochs: int
+    accelerator: Literal[]
+    devices: str
+  callback_configs:
+    - callback_name:
+      callback_kwargs:
+    - callback_name:
+      callback_kwargs:
+  logger_configs:
+    - logger_name:
+      logger_kwargs:
+    - logger_name:
+      logger_kwargs:
 
