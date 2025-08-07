@@ -36,7 +36,7 @@ class NormalModel(nn.Module):
 
     def forward(
         self,
-        inputs,
+        inputs: torch.Tensor,
     ):
         outputs = self.backbone(inputs)
         return outputs
