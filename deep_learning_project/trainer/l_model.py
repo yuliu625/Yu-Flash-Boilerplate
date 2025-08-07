@@ -1,11 +1,17 @@
 """
-基于lightning的模型定义。
+基于lightning的Module。
 
-在我的设计中，model的定义依然是直接使用nn.Module来实现的，模型的设置也在其中实现。
-仅在模型完整的实现之后，才在LightningModule中组合。
-目的在于，低耦合，便于迁移。
+无法避免的，这个类需要进行具体的修改，也可能需要多种实现。
 
-这里仅设置干净的step相关内容。
+LightningModule的特点:
+    - 模型与训练绑定: 除了基础的前向传播，还绑定了反向传播相关的方法。
+    - 自动管理: 如果在trainer中同时以LightningDataModule进行训练，大量的操作能够自动被管理。
+
+我约定的实现:
+    - 最高层封装: 仅在最高层组合所有的模块，或者仅在最高层封装原有的模型。目的在于:
+        - 兼容性: 原始模型依然是通用的基于torch.nn.Module定义的。
+        - 低耦合: 视pl.LightningModule为构建训练的一部分。
+        - 效率: 开发对lightning依赖程度低，训练和监视高于原生torch。
 """
 
 from __future__ import annotations
@@ -19,7 +25,8 @@ import lightning as pl
 import torchmetrics
 
 from typing import TYPE_CHECKING
-# if TYPE_CHECKING:
+if TYPE_CHECKING:
+    from torch import Tensor
 
 
 class LModel(pl.LightningModule):
@@ -30,17 +37,16 @@ class LModel(pl.LightningModule):
     """
     def __init__(
         self,
-        config,
+        model: nn.Module,
         loss_fn: nn.Module,
-        optimizer: type[optim.Optimizer],
+        optimizer_class: type[optim.Optimizer],
+        optimizer_kwargs: dict,
+        metrics,
     ):
         super().__init__()
-        self.config = config
-        self.model_config = config['torch_models']
-        self.criterion_config = self.model_config['criterion']
 
         # 设置模型
-        self.model = NormalModel(self.model_config)
+        self.model = model
         # 设置损失函数
         self.loss_fn = self.choose_loss_fn(self.criterion_config['loss_fn']['name'])
         # 设置优化器
@@ -57,24 +63,27 @@ class LModel(pl.LightningModule):
         # 测试模型的输入，会在summary table中展现。
         self.example_input_array = torch.rand(4, 2000)
 
-    def forward(self, x):
+    def forward(
+        self,
+        inputs: torch.Tensor,
+    ) -> torch.Tensor:
         """
         一些情况下，需要实现forward来避免报错。
         """
-        return self.model(x)
+        outputs: torch.Tensor = self.model(inputs)
+        return outputs
 
     def training_step(self, batch, batch_idx):
         """
         必要的，实现每一步的训练。但是batch_idx似乎用不到，是lightning会用的。
         """
         # 获取数据
-        targets = batch['labels']
-        inputs = batch['datas']
+        targets: torch.Tensor = batch['targets']
+        inputs: torch.Tensor = batch['datas']
         # 前向传播
-        outputs = self.model(inputs)
+        outputs: torch.Tensor = self.model(inputs)
         # 计算训练损失
-        # TODO: 之后需要考虑自定义更加复杂的损失函数和多阶段训练流程。
-        loss = self.loss_fn(outputs, targets)
+        loss: torch.Tensor = self.loss_fn(outputs, targets)
         # 日志
         self.log('train_loss', loss)
         return loss  # 这里的返回是反向传播和优化器需要的。
@@ -94,17 +103,17 @@ class LModel(pl.LightningModule):
         应该的，验证模型。
         """
         # 获取数据
-        targets = batch['targets']
-        inputs = batch['datas']
+        targets: torch.Tensor = batch['targets']
+        inputs: torch.Tensor = batch['datas']
         # 前向传播
-        outputs = self.model(inputs)
+        outputs: torch.Tensor = self.model(inputs)
         # 测试损失
-        loss = self.loss_fn(outputs, targets)
+        loss: torch.Tensor = self.loss_fn(outputs, targets)
         # 这里应该还有测试指标。
-        accuracy = self.accuracy_fn(outputs, targets)
-        precision = self.precision_fn(outputs, targets)
-        recall = self.recall_fn(outputs, targets)
-        f1_score = self.f1_score_fn(outputs, targets)
+        accuracy: torch.Tensor = self.accuracy_fn(outputs, targets)
+        precision: torch.Tensor = self.precision_fn(outputs, targets)
+        recall: torch.Tensor = self.recall_fn(outputs, targets)
+        f1_score: torch.Tensor = self.f1_score_fn(outputs, targets)
 
         # 日志
         self.log('val_loss', loss)
