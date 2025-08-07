@@ -1,18 +1,30 @@
 # 一个配置文件的模板
 
 data_module_config:
-  train_dataset_config: dict
-  train_dataloader_config: dict
-  val_dataset_config: dict
-  val_dataloader_config: dict
+  # 训练
+  train_dataset_config:
+    train_data_path: ''
+  train_dataloader_config:
+    collate_fn_name: Literal
+    batch_size: int
+    is_shuffle: True
+    num_workers: int
+  # 验证
+  val_dataset_config:
+    val_data_path: ''
+  val_dataloader_config:
+    collate_fn_name: Literal
+    batch_size: int
+    is_shuffle: True
+    num_workers: int
 
 
 model_config:
-  torch_model_name: str
-  torch_model_config: dict
-  loss_fn_name: str
+  torch_model_name: Literal
+  torch_model_config: dict  # 不对这个参数的schema进行检验，因为模型架构可能会频繁变动。
+  loss_fn_name: Literal
   loss_fn_config: dict
-  optimizer_name: str
+  optimizer_name: Literal
   optimizer_config: dict
   metrics_configs_list:
     - metric_name: ''
@@ -23,18 +35,18 @@ model_config:
 
 trainer_config:
   trainer_base_config:
-    default_root_dir: ''
+    default_root_dir: ''  # 这个参数一定要具体设置
     max_epochs: int
-    accelerator: Literal[]
-    devices: str
+    accelerator: Literal
+    devices: Literal
   callback_configs:
-    - callback_name:
-      callback_kwargs:
-    - callback_name:
-      callback_kwargs:
+    - callback_name: Literal
+      callback_kwargs: dict
+    - callback_name: Literal
+      callback_kwargs: dict
   logger_configs:
-    - logger_name:
-      logger_kwargs:
-    - logger_name:
-      logger_kwargs:
+    - logger_name: Literal
+      logger_kwargs: dict
+    - logger_name: Literal
+      logger_kwargs: dict
 
