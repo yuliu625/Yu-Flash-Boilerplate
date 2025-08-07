@@ -4,3 +4,6 @@
 这些工具仅会在这个trainer中使用。
 """
 
+from .l_callback_factory import LCallbackFactory
+from .l_logger_factory import LLoggerFactory
+
