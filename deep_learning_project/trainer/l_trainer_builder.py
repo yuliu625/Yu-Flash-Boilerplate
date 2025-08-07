@@ -7,14 +7,13 @@ lightning提供的Trainer。
 
 from __future__ import annotations
 
-from .l_model import LModel
-from .trainer_building_tools.l_callback_factory import LCallbackFactory
-from .trainer_building_tools.l_logger_factory import LLoggerFactory
+from .l_trainer_building_tools.l_callback_factory import LCallbackFactory
+from .l_trainer_building_tools.l_logger_factory import LLoggerFactory
 
 import lightning as pl
 from omegaconf import OmegaConf
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 if TYPE_CHECKING:
     from lightning.pytorch.callbacks import Callback
     from lightning.pytorch.loggers import Logger
@@ -26,15 +25,12 @@ class LightningTrainerBuilder:
     """
     def __init__(
         self,
-        config: dict,
-    ) -> None:
+        trainer_config: dict,
+    ):
         """
         :param config: 这是一个总的配置文件。
         """
         # 导入和分配设置。
-        self.config = config
-        self.dataloader_config = self.config['torch_dataloaders']
-        self.model_config = self.config['torch_models']
         self.trainer_config = self.config['trainer']
 
         # trainer设置的设置。
@@ -53,33 +49,11 @@ class LightningTrainerBuilder:
         self.loggers = self.build_logger()
         self.record_config()
 
-        self.trainer = self.build_trainer()
+        self.trainer = self.build_lightning_trainer()
 
-    # TODO: 待修改。trainer的构建和data-module无关，训练才会使用data-module。
-    def build_lightning_data_module(
-        self,
-    ) -> pl.LightningDataModule:
-        """
-        构建dataloader。
-        由于这里我使用了工厂模式，这段代码高度复用不需要修改。
-        lightning的LightningDataModule也有类似的设计。
-        """
-        dataloader_factory = DataLoaderFactory(self.dataloader_config)
-        train_dataloader = dataloader_factory.create_train_dataloader()
-        val_dataloader = dataloader_factory.create_validate_dataloader()
-        return train_dataloader, val_dataloader
-
-    # TODO: 待修改。trainer的构建和model无关，训练才会使用model。
-    def build_lightning_model(
-        self,
-    ) -> pl.LightningModule:
-        """构建模型。"""
-        model = LModel(self.config)
-        # 断点续训判断
-        return model
-
+    # ====暴露方法.====
+    @staticmethod
     def build_lightning_trainer(
-        self,
         mode: str = 'train',
     ) -> pl.Trainer:
         trainer_base_config = {
@@ -110,19 +84,31 @@ class LightningTrainerBuilder:
         return trainer
 
     # ====工具方法。====
+    @staticmethod
     def build_callbacks(
-        self,
+        callback_configs: list[dict],
     ) -> list[Callback]:
-        callback_factory = CallbackFactory(self.callbacks_config)
-        callbacks = callback_factory.get_callbacks()
+        callbacks = [
+            LCallbackFactory.create_callback(
+                callback_name=callback_config['callback_name'],
+                callback_kwargs=callback_config['callback_kwargs'],
+            )
+            for callback_config in callback_configs
+        ]
         return callbacks
 
     # ====工具方法。====
+    @staticmethod
     def build_loggers(
-        self,
+        logger_configs: list[dict],
     ) -> list[Logger]:
-        logger_factory = LoggerFactory(self.loggers_config)
-        loggers = logger_factory.get_loggers()
+        loggers = [
+            LLoggerFactory.create_logger(
+                logger_name=logger_config['logger_name'],
+                logger_kwargs=logger_config['logger_kwargs'],
+            )
+            for logger_config in logger_configs
+        ]
         return loggers
 
     def record_config(self):
