@@ -16,46 +16,56 @@ from .l_model_building_tools import (
 )
 from .l_model import LModel
 
-# 需要从torch_models模块导入基于torch定义的模型。
-# 可改进的，使用factory-pattern封装获取torch-model的方法。
-# 暂时无法避免的，需要不断修改这个导入内容。
-from deep_learning_project.torch_models.torch_models import NormalModel
+from deep_learning_project.torch_models.torch_model_factory import TorchModelFactory
 
-import torch
-
-from typing import TYPE_CHECKING
-# if TYPE_CHECKING:
+from typing import TYPE_CHECKING, Literal
+if TYPE_CHECKING:
+    from lightning import LightningModule
 
 
 class LModelFactory:
+    # ====暴露方法。====
     @staticmethod
-    def create_default_model(
-        loss_fn_name: str,
-        loss_fn_kwargs: dict,
+    def create_lightning_model(
+        torch_model_name: Literal[
+            'normal',
+        ],
+        torch_model_config: dict,
+        loss_fn_name: Literal[
+            'cross_entropy', 'mse', 'binary_crossentropy'
+        ],
+        loss_fn_config: dict,
         optimizer_name: str,
         optimizer_config: dict,
-        metrics_configs_list: list[dict]
-    ):
+        metrics_configs_list: list[dict],
+    ) -> LightningModule:
+        torch_model = TorchModelFactory.create_torch_model(
+            torch_model_name=torch_model_name,
+            torch_model_config=torch_model_config,
+        )
         loss_fn = LossFnFactory.create_loss_fn(
             loss_fn_name=loss_fn_name,
-            loss_fn_kwargs=loss_fn_kwargs,
+            loss_fn_config=loss_fn_config,
         )
         optimizer_class = OptimizerClassFactory.create_optimizer_class(
             optimizer_name=optimizer_name,
         )
-        metrics_dict = {
-            metric_config['metric_name']: MetricFactory.create_metric(
+        metrics_list = [
+            dict(
                 metric_name=metric_config['metric_name'],
-                metric_kwargs=metric_config['metrics_kwargs'],
+                metric_fn=MetricFactory.create_metric(
+                    metric_name=metric_config['metric_name'],
+                    metric_config=metric_config['metrics_kwargs'],
+                )
             )
             for metric_config in metrics_configs_list
-        }
+        ]
         l_model = LModel(
-            torch_model=NormalModel({}),
+            torch_model=torch_model,
             loss_fn=loss_fn,
             optimizer_class=optimizer_class,
             optimizer_configs=optimizer_config,
-            metrics_list=metrics_dict,
+            metrics_list=metrics_list,
         )
         return l_model
 
