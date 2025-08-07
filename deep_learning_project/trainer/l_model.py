@@ -39,7 +39,7 @@ class LModel(pl.LightningModule):
         torch_model: torch.nn.Module,
         loss_fn: torch.nn.Module,
         optimizer_class: type[torch.optim.Optimizer],
-        optimizer_configs: dict,
+        optimizer_config: dict,
         metrics_list: list[dict[str, str | torchmetrics.Metric]],
     ):
         super().__init__()
@@ -49,7 +49,7 @@ class LModel(pl.LightningModule):
         self.loss_fn = loss_fn
         # 设置优化器
         self.optimizer_class = optimizer_class
-        self.optimizer_configs = optimizer_configs
+        self.optimizer_config = optimizer_config
         # 设置评估函数
         self.metrics_list = metrics_list
 
