@@ -45,16 +45,18 @@ class LightningModelConfig:
 @dataclass
 class TorchLossFn:
     loss_fn_name: str
-    loss_fn_kwargs: dict
+    loss_fn_config: dict
 
 
 @dataclass
 class TorchMetric:
     metric_name: str
-    metric_kwargs: dict
+    metric_config: dict
 
 
 """<!--model-end-->"""
+
+
 """<!--trainer--start-->"""
 
 
