@@ -38,6 +38,16 @@ class LLoggerFactory:
         elif logger_name == 'mlflow':
             return LLoggerFactory.create_mlflow_logger(logger_config=logger_config)
 
+    # ====必要方法。====
+    @staticmethod
+    def create_wandb_logger(
+        logger_config: dict,
+    ) -> Logger:
+        wandb_logger = WandbLogger(
+            **logger_config,
+        )
+        return wandb_logger
+
     # ====备用方法。====
     @staticmethod
     def create_csv_logger(
@@ -57,16 +67,6 @@ class LLoggerFactory:
             **logger_config,
         )
         return tensorboard_logger
-
-    # ====必要方法。====
-    @staticmethod
-    def create_wandb_logger(
-        logger_config: dict,
-    ) -> Logger:
-        wandb_logger = WandbLogger(
-            **logger_config,
-        )
-        return wandb_logger
 
     # ====预留方法。====
     @staticmethod
