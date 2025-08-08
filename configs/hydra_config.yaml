@@ -1,5 +1,0 @@
-defaults:
-  - dataloader: torch_dataloaders
-  - model: torch_models
-  - trainer: trainer
-
