@@ -14,7 +14,7 @@ from lightning.pytorch.loggers import (
     MLFlowLogger,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 if TYPE_CHECKING:
     from lightning.pytorch.loggers import Logger
 
@@ -60,47 +60,54 @@ class LoggerFactory:
 
 
 class LLoggerFactory:
-    # ====主要方法。====
+    # ====暴露方法。====
     @staticmethod
     def create_logger(
-        logger_name: str,
-        logger_kwargs: dict,
+        logger_name: Literal['csv', 'tensorboard', 'wandb', 'mlflow',],
+        logger_config: dict,
     ) -> Logger:
-        ...
+        if logger_name == 'csv':
+            return LLoggerFactory.create_csv_logger(logger_config=logger_config)
+        elif logger_name == 'tensorboard':
+            return LLoggerFactory.create_tensorboard_logger(logger_config=logger_config)
+        elif logger_name == 'wandb':
+            return LLoggerFactory.create_wandb_logger(logger_config=logger_config)
+        elif logger_name == 'mlflow':
+            return LLoggerFactory.create_mlflow_logger(logger_config=logger_config)
 
     @staticmethod
     def create_csv_logger(
-        logger_kwargs: dict,
+        logger_config: dict,
     ) -> Logger:
         csv_logger = CSVLogger(
-            **logger_kwargs,
+            **logger_config,
         )
         return csv_logger
 
     @staticmethod
     def create_tensorboard_logger(
-        logger_kwargs: dict,
+        logger_config: dict,
     ) -> Logger:
         tensorboard_logger = TensorBoardLogger(
-            **logger_kwargs,
+            **logger_config,
         )
         return tensorboard_logger
 
     @staticmethod
     def create_wandb_logger(
-        logger_kwargs: dict,
+        logger_config: dict,
     ) -> Logger:
         wandb_logger = WandbLogger(
-            **logger_kwargs,
+            **logger_config,
         )
         return wandb_logger
 
     @staticmethod
     def create_mlflow_logger(
-        logger_kwargs: dict,
+        logger_config: dict,
     ) -> Logger:
         mlflow_logger = MLFlowLogger(
-            **logger_kwargs,
+            **logger_config,
         )
         return mlflow_logger
 
