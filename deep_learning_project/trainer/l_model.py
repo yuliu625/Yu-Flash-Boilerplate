@@ -136,14 +136,14 @@ class LModel(pl.LightningModule):
             value=val_loss,
         )
         # 测试指标。
-        metrics_log = {}
+        metric_log = {}
         for metric_dict in self.metrics_list:
             # 进行评测计算。
-            metrics_value = metric_dict['metric_fn'](outputs, targets)
+            metric_value = metric_dict['metric_fn'](outputs, targets)
             # 日志记录。
             self.log(
                 name=f'{metric_dict['metric_name']}',
-                value=metrics_value,
+                value=metric_value,
             )
         return val_loss
 
