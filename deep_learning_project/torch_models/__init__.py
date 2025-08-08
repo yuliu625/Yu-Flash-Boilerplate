@@ -1,12 +1,9 @@
 """
-模型中使用到的模块的定义。会在model包中使用。
+基于原生torch对于模型的定义。
 
-全部都是nn.Module的子类。
-会有独立的相关的测试。
+特性:
+    - 所有定义的类，都是torch.nn.Module的派生类。
 """
 
-# __all__ = []
+from .torch_model_factory import TorchModelFactory
 
-
-# 一般情况下，仅对外暴露各种结构的model。
-from .torch_models import NormalModel
