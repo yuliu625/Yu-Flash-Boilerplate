@@ -1,6 +1,14 @@
 """
 基于原生torch的dataloader的定义。
 
+按照约定，这个文件不需要修改。需要满足:
+    - 定义好CollateFnFactory
+    - dataloader_config的schema符合torch.utils.data.DataLoader的签名。
+
+使用场景:
+    - 使用dataloader: 在构建好dataset后，以pipeline形式构建dataloader。
+    - 构建datamodule: 构建lightning使用的datamodule。
+
 注意:
     - 对于dataloader的测试，需要结合collate_fn一同进行。
 """
@@ -20,35 +28,41 @@ class DataLoaderFactory:
     """
     生成dataloader的工厂。
 
-    参数没有完全实现以序列化数据构建的原因是:
+    参数没有完全实现以可序列化数据构建，为dataset和collate_fn，原因是:
+        - collate_fn较为稳定，由工厂方法构建很合适。
+        - dataset很灵活，以依赖注入的方式可完全避免修改当前类。
+    当前设计的原因是:
         - dataset的构建更好的实践是与dataloader分离。
         - 对于lightning，dataset会由DataModule中其他方法动态提供和管理。
 
     提供的基础方法:
         - create_dataloader: 构建dataloader的方法，规定了需要的参数。
-
-    需要实现的方法:
         - create_train_dataloader
         - create_val_dataloader
+
+    外部需要实现的工具类:
+        - CollateFnFactory: 以策略模式封装获取collate_fn的方法。
+
+    dataloader_config字段说明:
+        - 必要:
+            - collate_fn_name
+            - batch_size
+            - shuffle
+        - 常用设置:
+            - num_workers
+        - 不进行的设置
+            - sampler
     """
     # ====暴露方法。需要实现的方法。====
     @staticmethod
     def create_train_dataloader(
         train_dataset: Dataset,
-        collate_fn_name: str,
-        batch_size: int,
-        is_shuffle: bool,
-        num_workers: int,
-        dataloader_kwargs: dict,
+        dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
         train_dataloader = DataLoaderFactory.create_dataloader(
             dataset=train_dataset,
-            collate_fn_name=collate_fn_name,
-            is_shuffle=is_shuffle,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            **dataloader_kwargs
+            **dataloader_config
         )
         return train_dataloader
 
@@ -56,20 +70,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_val_dataloader(
         val_dataset: Dataset,
-        collate_fn_name: str,
-        batch_size: int,
-        is_shuffle: bool,
-        num_workers: int,
-        dataloader_kwargs: dict,
+        dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
         val_dataloader = DataLoaderFactory.create_dataloader(
             dataset=val_dataset,
-            collate_fn_name=collate_fn_name,
-            is_shuffle=is_shuffle,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            **dataloader_kwargs,
+            **dataloader_config,
         )
         return val_dataloader
 
@@ -77,20 +83,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_test_dataloader(
         test_dataset: Dataset,
-        collate_fn_name: str,
-        batch_size: int,
-        is_shuffle: bool,
-        num_workers: int,
-        dataloader_kwargs: dict,
+        dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
         test_dataloader = DataLoaderFactory.create_dataloader(
             dataset=test_dataset,
-            collate_fn_name=collate_fn_name,
-            is_shuffle=is_shuffle,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            **dataloader_kwargs,
+            **dataloader_config,
         )
         return test_dataloader
 
@@ -98,20 +96,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_predict_dataloader(
         predict_dataset: Dataset,
-        collate_fn_name: str,
-        batch_size: int,
-        is_shuffle: bool,
-        num_workers: int,
-        dataloader_kwargs: dict,
+        dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
         predict_dataloader = DataLoaderFactory.create_dataloader(
             dataset=predict_dataset,
-            collate_fn_name=collate_fn_name,
-            is_shuffle=is_shuffle,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            **dataloader_kwargs,
+            **dataloader_config,
         )
         return predict_dataloader
 
@@ -119,25 +109,20 @@ class DataLoaderFactory:
     @staticmethod
     def create_dataloader(
         dataset: Dataset,
-        collate_fn_name: str,
-        batch_size: int,
-        is_shuffle: bool,
-        num_workers: int,
-        dataloader_kwargs: dict,
+        dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataset。
         # dataset的可以以依赖注入的方式进行，也可以在这里构建。
         collate_fn = CollateFnFactory.create_collate_fn(
-            collate_fn_name=collate_fn_name,
+            collate_fn_name=dataloader_config.pop('collate_fn_name'),  # 执行反序列化。
         )
         # 设置dataloader。
         dataloader = DataLoader(
             dataset=dataset,
             collate_fn=collate_fn,
-            batch_size=batch_size,
-            shuffle=is_shuffle,
-            num_workers=num_workers,
-            **dataloader_kwargs,
+            batch_size=dataloader_config.pop('batch_size'),  # 显式使用这个字段，确保这种重要字段被设置。
+            shuffle=dataloader_config.pop('shuffle'),  # 显式使用这个字段，确保这种重要字段被设置。
+            **dataloader_config,
         )
         return dataloader
 
