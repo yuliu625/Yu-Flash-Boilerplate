@@ -1,24 +1,26 @@
 # 一个配置文件的模板
 
+# data_module相关的设置。
 data_module_config:
-  # 训练
+  # 训练相关。
   train_dataset_config:
     train_data_path: ''
   train_dataloader_config:
     collate_fn_name: Literal
     batch_size: int
-    is_shuffle: True
+    shuffle: True  # 这个字段是bool类型。
     num_workers: int
-  # 验证
+  # 验证相关。
   val_dataset_config:
     val_data_path: ''
   val_dataloader_config:
     collate_fn_name: Literal
     batch_size: int
-    is_shuffle: True
+    shuffle: True  # 这个字段是bool类型。
     num_workers: int
 
 
+# model相关的设置。
 model_config:
   torch_model_name: Literal
   torch_model_config: dict  # 不对这个参数的schema进行检验，因为模型架构可能会频繁变动。
@@ -26,27 +28,41 @@ model_config:
   loss_fn_config: dict
   optimizer_name: Literal
   optimizer_config: dict
-  metrics_configs_list:
+  metric_configs:
     - metric_name: ''
-      metric_kwargs: {}
+      metric_config: {}
     - metric_name: ''
-      metric_kwargs: {}
+      metric_config: {}
 
 
+# trainer相关的设置。
 trainer_config:
+  # trainer中本就是
   trainer_base_config:
     default_root_dir: ''  # 这个参数一定要具体设置
     max_epochs: int
     accelerator: Literal
     devices: Literal
+  # callbacks常用设置，较少修改。
   callback_configs:
     - callback_name: Literal
-      callback_kwargs: dict
+      callback_config: dict
     - callback_name: Literal
-      callback_kwargs: dict
+      callback_config: dict
+  # loggers常用设置，较少修改。
+  # logger_name: Literal['csv', 'tensorboard', 'wandb', 'mlflow',]
+  # logger_config: dict  因具体logger的不同，logger_config需要具体进行设置。
+  # 因我所处的多服务器环境，实际使用的为wandb，其他logger作为备份。
   logger_configs:
-    - logger_name: Literal
-      logger_kwargs: dict
-    - logger_name: Literal
-      logger_kwargs: dict
+    - logger_name: csv
+      logger_config:
+        save_dir: ''
+        name: ''
+        version:
+    - logger_name: tensorboard
+      logger_config: dict
+    - logger_name: wandb
+      logger_config: dict
+    - logger_name: mlflow
+      logger_config: dict
 
