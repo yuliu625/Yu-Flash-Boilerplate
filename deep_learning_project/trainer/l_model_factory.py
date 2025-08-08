@@ -39,10 +39,12 @@ class LModelFactory:
         optimizer_config: dict,
         metric_configs: list[dict],
     ) -> LightningModule:
+        # 重要的，使用工厂方法获取torch-model。
         torch_model = TorchModelFactory.create_torch_model(
             torch_model_name=torch_model_name,
             torch_model_config=torch_model_config,
         )
+        # 重要的，使用工厂方法获取loss_fn。
         loss_fn = LossFnFactory.create_loss_fn(
             loss_fn_name=loss_fn_name,
             loss_fn_config=loss_fn_config,
@@ -50,6 +52,7 @@ class LModelFactory:
         optimizer_class = OptimizerClassFactory.create_optimizer_class(
             optimizer_name=optimizer_name,
         )
+        # 批量获取metrics。
         metrics_list = [
             dict(
                 metric_name=metric_config['metric_name'],
@@ -60,6 +63,7 @@ class LModelFactory:
             )
             for metric_config in metric_configs
         ]
+        # 实例化模型。实现使用可序列化数据构建对象。
         l_model = LModel(
             torch_model=torch_model,
             loss_fn=loss_fn,
