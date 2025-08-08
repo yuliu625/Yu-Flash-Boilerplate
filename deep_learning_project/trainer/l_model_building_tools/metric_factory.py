@@ -25,9 +25,11 @@ class MetricFactory:
     def create_metric(
         metric_name: Literal[
             'accuracy', 'precision', 'recall', 'f1score',
+            'mse', 'mae', 'rmse', 'r2score',
         ],
         metric_config: dict,
     ) -> Metric:
+        # 分类任务。
         if metric_name == 'accuracy':
             return MetricFactory.create_accuracy_metric(metric_config=metric_config)
         elif metric_name == 'precision':
@@ -36,6 +38,15 @@ class MetricFactory:
             return MetricFactory.create_recall_metric(metric_config=metric_config)
         elif metric_name == 'f1score':
             return MetricFactory.create_f1score_metric(metric_config=metric_config)
+        # 回归任务。
+        elif metric_name == 'mse':
+            return MetricFactory.create_mse_metric(metric_config=metric_config)
+        elif metric_name == 'mae':
+            return MetricFactory.create_mae_metric(metric_config=metric_config)
+        elif metric_name == 'rmse':
+            return MetricFactory.create_rmse_metric(metric_config=metric_config)
+        elif metric_name == 'r2score':
+            return MetricFactory.create_r2score_metric(metric_config=metric_config)
 
     """<!--分类任务-start-->"""
 
@@ -65,8 +76,35 @@ class MetricFactory:
 
     """<!--分类任务-end-->"""
 
-# self.accuracy_fn = torchmetrics.Accuracy(task='multiclass', num_classes=8)
-# self.precision_fn = torchmetrics.Precision(task='multiclass', num_classes=8)
-# self.recall_fn = torchmetrics.Recall(task='multiclass', num_classes=8)
-# self.f1_score_fn = torchmetrics.F1Score(task='multiclass', average='weighted', num_classes=8)
+    """<!--回归任务-start-->"""
+
+    @staticmethod
+    def create_mse_metric(
+        metric_config: dict,
+    ) -> Metric:
+        return torchmetrics.MeanSquaredError(**metric_config)
+
+    @staticmethod
+    def create_mae_metric(
+        metric_config: dict,
+    ) -> Metric:
+        return torchmetrics.MeanAbsoluteError(**metric_config)
+
+    @staticmethod
+    def create_rmse_metric(
+        metric_config: dict,
+    ) -> Metric:
+        return torchmetrics.NormalizedRootMeanSquaredError(**metric_config)
+
+    @staticmethod
+    def create_r2score_metric(
+        metric_config: dict,
+    ) -> Metric:
+        return torchmetrics.R2Score(**metric_config)
+
+    """<!--回归任务-end-->"""
+
+    """<!--自定义-start-->"""
+
+    """<!--自定义-end-->"""
 
