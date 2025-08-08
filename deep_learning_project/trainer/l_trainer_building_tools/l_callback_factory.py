@@ -1,8 +1,14 @@
 """
 构建lightning trainer需要的callback。
 
-构造这个的原因是：callback太多了，统一构造会更好。
-这个文件还是每次修改一下，通过配置文件似乎没有必要。
+统一工厂方法构建callback，具体设置由配置文件实现。
+
+重要callback:
+    - model_checkpoint:
+    - early_stopping:
+功能callback:
+    - model_summary:
+    - device_stats_monitor:
 """
 
 from __future__ import annotations
@@ -14,105 +20,87 @@ from lightning.pytorch.callbacks import (
     EarlyStopping,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 if TYPE_CHECKING:
     from lightning.pytorch.callbacks import Callback
 
 
-class CallbackFactory:
-    def __init__(self, config: dict):
-        self.config = config
-        self.choice = self.config['choice']
-
-        # 会不断设置并最终返回的list的callback。
-        self.callbacks = []
-
-        self.add_callback(self.choice)
-
-    def add_callback(self, choice: list[str]):
-        if 'early_stopping' in choice:
-            early_stop_callback = self.get_early_stop_callback()
-            self.callbacks.append(early_stop_callback)
-
-    def get_callbacks(self):
-        return self.callbacks
-
-    def get_model_summary(self):
-        """
-        打印模型情况。
-        """
-        # model_summary = ModelSummary(torch_models, max_depth=-1)
-        # return model_summary
-
-    def get_model_checkpoint(self):
-        """
-        进行checkpoint具体设置.
-        """
-        model_checkpoint = ModelCheckpoint(
-            save_top_k=5,
-            monitor='val_f1_score',
-            mode='max',
-            filename="{epoch:02d}-{val_f1_score:.2f}"
-        )
-        return model_checkpoint
-
-    def get_early_stop_callback(self):
-        """
-        设置提前停止。
-        监控某个日志指标，根据其变化提前停止训练。
-            - 一些实验，可以设置很大的epoch然后提前停止。
-            - 另一些实验，使用相同的epoch而不设置这个callback。
-        """
-        early_stop_callback = EarlyStopping(
-            monitor='val_f1_score',
-            mode='min',
-            patience=5,
-        )
-        return early_stop_callback
-
-
 class LCallbackFactory:
-    # ====主要方法。====
+    # ====暴露方法。====
     @staticmethod
     def create_callback(
-        callback_name: str,
-        callback_kwargs: dict,
+        callback_name: Literal[
+            'model_checkpoint', 'early_stopping',
+            'model_summary', 'device_stats_monitor',
+        ],
+        callback_config: dict,
     ) -> Callback:
-        ...
+        if callback_name == 'model_checkpoint':
+            return LCallbackFactory.create_model_checkpoint_callback(callback_config=callback_config)
+        elif callback_name == 'early_stopping':
+            return LCallbackFactory.create_early_stopping_callback(callback_config=callback_config)
+        elif callback_name == 'model_summary':
+            return LCallbackFactory.create_model_summary_callback(callback_config=callback_config)
+        elif callback_name == 'device_stats_monitor':
+            return LCallbackFactory.create_device_stats_monitor_callback(callback_config=callback_config)
 
+    # ====必要方法。====
     @staticmethod
     def create_model_checkpoint_callback(
-        callback_kwargs: dict,
+        callback_config: dict,
     ) -> Callback:
+        """
+        checkpoint管理。
+
+        本地持久化checkpoint。lightning构建的checkpoint会自动保存所有所需的内容，并自动处理分布式环境。
+
+        Args:
+            callback_config:
+
+        Returns:
+
+        """
         model_checkpoint_callback = ModelCheckpoint(
-            **callback_kwargs,
+            **callback_config,
         )
         return model_checkpoint_callback
 
+    # ====必要方法。====
     @staticmethod
     def create_early_stopping_callback(
-        callback_kwargs: dict,
+        callback_config: dict,
     ) -> Callback:
+        """
+        早停。
+
+        监视训练过程的指定指标，当连续持续恶化，提前终止训练进程。
+
+        Args:
+            callback_config:
+
+        Returns:
+
+        """
         early_stopping_callback = EarlyStopping(
-            **callback_kwargs,
+            **callback_config,
         )
         return early_stopping_callback
 
     @staticmethod
     def create_model_summary_callback(
-        callback_kwargs: dict,
+        callback_config: dict,
     ) -> Callback:
         model_summary_callback = ModelSummary(
-            **callback_kwargs,
+            **callback_config,
         )
         return model_summary_callback
 
     @staticmethod
     def create_device_stats_monitor_callback(
-        callback_kwargs: dict,
+        callback_config: dict,
     ) -> Callback:
         device_stats_monitor_callback = DeviceStatsMonitor(
-            **callback_kwargs,
+            **callback_config,
         )
         return device_stats_monitor_callback
 
