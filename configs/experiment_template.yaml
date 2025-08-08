@@ -8,61 +8,86 @@ data_module_config:
   train_dataloader_config:
     collate_fn_name: Literal
     batch_size: int
-    shuffle: True  # 这个字段是bool类型。
+    shuffle: True  # 这个字段是bool类型。通常情况会设置为True。
     num_workers: int
   # 验证相关。
   val_dataset_config:
     val_data_path: ''
   val_dataloader_config:
-    collate_fn_name: Literal
-    batch_size: int
-    shuffle: True  # 这个字段是bool类型。
-    num_workers: int
+    collate_fn_name: ${data_module_config.train_dataloader_config.collate_fn_name}  # 这个字段需要和train_dataloader保持一致。
+    batch_size: ${data_module_config.train_dataloader_config.batch_size}  # 这个字段可以根据具体情况设置得更大。
+    shuffle: False  # 这个字段是bool类型。通常情况会设置为False。
+    num_workers: ${data_module_config.train_dataloader_config.num_workers}  # 这个字段可以根据具体情况设置得更大。
 
 
 # model相关的设置。
 model_config:
-  torch_model_name: Literal
+  torch_model_name: Literal  # torch_model_name: Literal
   torch_model_config: dict  # 不对这个参数的schema进行检验，因为模型架构可能会频繁变动。
-  loss_fn_name: Literal
+  loss_fn_name: Literal  # loss_fn_name: Literal
   loss_fn_config: dict
-  optimizer_name: Literal
-  optimizer_config: dict
-  metric_configs:
-    - metric_name: ''
-      metric_config: {}
-    - metric_name: ''
-      metric_config: {}
+  optimizer_name: Literal  # optimizer_name: Literal
+  optimizer_config:
+    lr: 1e-4
+  metric_configs:  # metric_name: Literal
+    - metric_name: Literal
+      metric_config: dict
+    - metric_name: Literal
+      metric_config: dict
 
 
 # trainer相关的设置。
 trainer_config:
-  # trainer中本就是
+  # trainer中本就是可序列化的字段。
   trainer_base_config:
-    default_root_dir: ''  # 这个参数一定要具体设置
+    default_root_dir: ''  # 这个参数一定要具体设置！
     max_epochs: int
-    accelerator: Literal
-    devices: Literal
+    accelerator: auto  # Literal['cpu', 'gpu', 'tpu', 'hpu', 'mps', 'auto']
+    devices: auto  # auto or list[int] or -1
   # callbacks常用设置，较少修改。
-  callback_configs:
-    - callback_name: Literal
-      callback_config: dict
-    - callback_name: Literal
-      callback_config: dict
+  callback_configs:  # callback_name: Literal
+    - callback_name: model_checkpoint
+      callback_config:
+        dirpath: ${trainer_config.trainer_base_config.default_root_dir}/checkpoints  # 约定名称checkpoints。
+        monitor: ''
+        mode: 'min'
+        save_top_k: 5
+    - callback_name: early_stopping
+      callback_config:
+        monitor: ''  # 一般保持和model_checkpoint一致。
+        mode: 'min'  # 一般保持和model_checkpoint一致。
+        patience: 5
+    # 常用默认配置，无需修改。
+    - callback_name: model_summary
+      callback_config:
+        max_depth: 1
+    # 常用默认配置，无需修改。
+    - callback_name: device_stats_monitor
+      callback_config:
+        cpu_stats: None
   # loggers常用设置，较少修改。
   # logger_name: Literal['csv', 'tensorboard', 'wandb', 'mlflow',]
   # logger_config: dict  因具体logger的不同，logger_config需要具体进行设置。
   # 因我所处的多服务器环境，实际使用的为wandb，其他logger作为备份。
-  logger_configs:
+  logger_configs:  # logger_name: Literal
+    - logger_name: wandb
+      logger_config:
+        save_dir: ${trainer_config.trainer_base_config.default_root_dir}/logs/wandb_logs
+        project: ''
+        name: ''
+        version: ''
+    # 复用wandb设置，无需手动配置。
     - logger_name: csv
       logger_config:
-        save_dir: ''
-        name: ''
-        version:
+        save_dir: ${trainer_config.trainer_base_config.default_root_dir}/logs/csv_logs
+        name: ${trainer_config.logger_configs.0.logger_config.name}
+        version: ${trainer_config.logger_configs.0.logger_config.version}
+    # 复用wandb设置，无需手动配置。
     - logger_name: tensorboard
-      logger_config: dict
-    - logger_name: wandb
-      logger_config: dict
-    - logger_name: mlflow
-      logger_config: dict
+      logger_config:
+        save_dir: ${trainer_config.trainer_base_config.default_root_dir}/logs/tensorboard_logs
+        name: ${trainer_config.logger_configs.0.logger_config.name}
+        version: ${trainer_config.logger_configs.0.logger_config.version}
+#    - logger_name: mlflow
+#      logger_config: dict
 
