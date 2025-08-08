@@ -32,12 +32,12 @@ class LModelFactory:
         ],
         torch_model_config: dict,
         loss_fn_name: Literal[
-            'cross_entropy', 'mse', 'binary_crossentropy'
+            'cross_entropy', 'mse',
         ],
         loss_fn_config: dict,
         optimizer_name: str,
         optimizer_config: dict,
-        metrics_configs_list: list[dict],
+        metric_configs: list[dict],
     ) -> LightningModule:
         torch_model = TorchModelFactory.create_torch_model(
             torch_model_name=torch_model_name,
@@ -58,7 +58,7 @@ class LModelFactory:
                     metric_config=metric_config['metrics_kwargs'],
                 )
             )
-            for metric_config in metrics_configs_list
+            for metric_config in metric_configs
         ]
         l_model = LModel(
             torch_model=torch_model,
