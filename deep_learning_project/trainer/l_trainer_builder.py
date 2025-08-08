@@ -92,7 +92,7 @@ class LTrainerBuilder:
         loggers = [
             LLoggerFactory.create_logger(
                 logger_name=logger_config['logger_name'],
-                logger_kwargs=logger_config['logger_kwargs'],
+                logger_config=logger_config['logger_kwargs'],
             )
             for logger_config in logger_configs
         ]
