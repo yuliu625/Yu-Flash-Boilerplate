@@ -19,51 +19,14 @@ if TYPE_CHECKING:
     from lightning.pytorch.loggers import Logger
 
 
-class LoggerFactory:
-    def __init__(self, config: dict):
-        # 导入配置
-        self.config = config
-        self.choice = self.config['choice']
-        self.wandb_config = self.config['wandb']
-
-        # 会不断设置并最终返回的list的logger。
-        self.loggers = []
-
-        # 添加logger
-        self.add_logger(self.choice)
-
-    def add_logger(self, choice: list[str]):
-        if 'csv' in choice:
-            self.loggers.append(self.get_csv_logger())
-        if 'tensorboard' in choice:
-            self.loggers.append(self.get_tensorboard_logger())
-        if 'wandb' in choice:
-            self.loggers.append(self.get_wandb_logger())
-
-    def get_loggers(self):
-        return self.loggers
-
-    def get_csv_logger(self):
-        csv_logger = CSVLogger(save_dir='csv_logs')
-        return csv_logger
-
-    def get_tensorboard_logger(self):
-        tensorboard_logger = TensorBoardLogger(save_dir='tensorboard_logs')
-        return tensorboard_logger
-
-    def get_wandb_logger(self):
-        wandb_logger = WandbLogger(
-            project=self.wandb_config['project'],
-            name=self.wandb_config['name'],
-        )
-        return wandb_logger
-
-
 class LLoggerFactory:
     # ====暴露方法。====
     @staticmethod
     def create_logger(
-        logger_name: Literal['csv', 'tensorboard', 'wandb', 'mlflow',],
+        logger_name: Literal[
+            'csv', 'tensorboard',
+            'wandb', 'mlflow',
+        ],
         logger_config: dict,
     ) -> Logger:
         if logger_name == 'csv':
@@ -75,6 +38,7 @@ class LLoggerFactory:
         elif logger_name == 'mlflow':
             return LLoggerFactory.create_mlflow_logger(logger_config=logger_config)
 
+    # ====备用方法。====
     @staticmethod
     def create_csv_logger(
         logger_config: dict,
@@ -84,6 +48,7 @@ class LLoggerFactory:
         )
         return csv_logger
 
+    # ====备用方法。====
     @staticmethod
     def create_tensorboard_logger(
         logger_config: dict,
@@ -93,6 +58,7 @@ class LLoggerFactory:
         )
         return tensorboard_logger
 
+    # ====必要方法。====
     @staticmethod
     def create_wandb_logger(
         logger_config: dict,
@@ -102,6 +68,7 @@ class LLoggerFactory:
         )
         return wandb_logger
 
+    # ====预留方法。====
     @staticmethod
     def create_mlflow_logger(
         logger_config: dict,
