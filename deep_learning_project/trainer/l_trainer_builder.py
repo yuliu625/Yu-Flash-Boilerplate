@@ -64,9 +64,9 @@ class LTrainerBuilder:
             raise NotImplementedError
         # 构建trainer对象。
         trainer = pl.Trainer(
-            **trainer_base_config,
-            callbacks=callbacks,
-            logger=loggers,
+            **trainer_base_config,  # 本身可序列化的参数。
+            callbacks=callbacks,  # 构建的callback对象。
+            logger=loggers,  # 构建的logger对象。
         )
         return trainer
 
@@ -78,7 +78,7 @@ class LTrainerBuilder:
         callbacks = [
             LCallbackFactory.create_callback(
                 callback_name=callback_config['callback_name'],
-                callback_kwargs=callback_config['callback_kwargs'],
+                callback_config=callback_config['callback_config'],
             )
             for callback_config in callback_configs
         ]
@@ -92,7 +92,7 @@ class LTrainerBuilder:
         loggers = [
             LLoggerFactory.create_logger(
                 logger_name=logger_config['logger_name'],
-                logger_config=logger_config['logger_kwargs'],
+                logger_config=logger_config['logger_config'],
             )
             for logger_config in logger_configs
         ]
