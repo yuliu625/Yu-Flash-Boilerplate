@@ -5,6 +5,7 @@
 
 注意:
     - 这个方法直接和该项目中自定义的data-module对应，方法可以不真正实现，但是需要保留。
+        一种兼容实现为: 使用val_dataset相关的配置假装test和predict。
 """
 
 from __future__ import annotations
@@ -22,35 +23,35 @@ from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
 
 
-class DatasetFactory:
+class TorchDatasetFactory:
     """
-    各种dataset的构建方法。
+    获取各种dataset对象的方法。
     """
     # ====暴露方法。需要实现的方法。====
     @staticmethod
     def create_train_dataset(
-        data_path,
+        dataset_config: dict,
     ) -> torch.utils.data.Dataset:
         ...
 
     # ====暴露方法。需要实现的方法。====
     @staticmethod
-    def create_validate_dataset(
-        data_path,
+    def create_val_dataset(
+        dataset_config: dict,
     ) -> torch.utils.data.Dataset:
         ...
 
     # ====暴露方法。需要实现的方法。====
     @staticmethod
     def create_test_dataset(
-        data_path,
+        dataset_config: dict,
     ) -> torch.utils.data.Dataset:
         ...
 
     # ====暴露方法。需要实现的方法。====
     @staticmethod
     def create_predict_dataset(
-        data_path,
+        dataset_config: dict,
     ) -> torch.utils.data.Dataset:
         ...
 
