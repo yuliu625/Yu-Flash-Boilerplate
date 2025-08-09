@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+# 从同一文件夹下导入各种collate_fn。
 from .collate_fn_factory import CollateFnFactory
 
 from torch.utils.data import DataLoader
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     from torch.utils.data import Dataset
 
 
-class DataLoaderFactory:
+class TorchDataLoaderFactory:
     """
     生成dataloader的工厂。
 
@@ -57,12 +58,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_train_dataloader(
         train_dataset: Dataset,
-        dataloader_config: dict,
+        train_dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
-        train_dataloader = DataLoaderFactory.create_dataloader(
+        train_dataloader = TorchDataLoaderFactory.create_dataloader(
             dataset=train_dataset,
-            **dataloader_config
+            dataloader_config=train_dataloader_config,
         )
         return train_dataloader
 
@@ -70,12 +71,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_val_dataloader(
         val_dataset: Dataset,
-        dataloader_config: dict,
+        val_dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
-        val_dataloader = DataLoaderFactory.create_dataloader(
+        val_dataloader = TorchDataLoaderFactory.create_dataloader(
             dataset=val_dataset,
-            **dataloader_config,
+            dataloader_config=val_dataloader_config,
         )
         return val_dataloader
 
@@ -83,12 +84,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_test_dataloader(
         test_dataset: Dataset,
-        dataloader_config: dict,
+        test_dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
-        test_dataloader = DataLoaderFactory.create_dataloader(
+        test_dataloader = TorchDataLoaderFactory.create_dataloader(
             dataset=test_dataset,
-            **dataloader_config,
+            dataloader_config=test_dataloader_config,
         )
         return test_dataloader
 
@@ -96,12 +97,12 @@ class DataLoaderFactory:
     @staticmethod
     def create_predict_dataloader(
         predict_dataset: Dataset,
-        dataloader_config: dict,
+        predict_dataloader_config: dict,
     ) -> DataLoader:
         # 设置dataloader。
-        predict_dataloader = DataLoaderFactory.create_dataloader(
+        predict_dataloader = TorchDataLoaderFactory.create_dataloader(
             dataset=predict_dataset,
-            **dataloader_config,
+            dataloader_config=predict_dataloader_config,
         )
         return predict_dataloader
 
