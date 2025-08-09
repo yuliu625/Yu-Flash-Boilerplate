@@ -18,15 +18,20 @@ dataset的职责:
 
 from __future__ import annotations
 
+# 从同一文件夹导入数据处理工具方法。
+# from .data_processors import (
+#
+# )
+
 import torch
-from torch.utils.data import Dataset
 import pandas as pd
+from pathlib import Path
 
 from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
 
 
-class DFDataset(Dataset):
+class DFDataset(torch.utils.data.Dataset):
     """
     torch中实现dataset的基础。
 
@@ -47,7 +52,7 @@ class DFDataset(Dataset):
     def __len__(self) -> int:
         return len(self.df)
 
-    def __getitem__(self, index) -> dict:
+    def __getitem__(self, index) -> dict[str, torch.Tensor]:
         # 加载 (这个方法就是df本身。)
 
         # 处理
@@ -58,16 +63,8 @@ class DFDataset(Dataset):
             # 'data':
         )
 
-    def process_data(
-        self,
-        data,
-    ) -> torch.Tensor:
-        """
-        可以用一个工具类来实现，处理完需要是tensor。
-        """
 
-
-class ControlDataset(Dataset):
+class ControlDataset(torch.utils.data.Dataset):
     """
     复杂一点的情况，数据不能完全读入内存，由控制文件进行管理。
 
@@ -90,7 +87,7 @@ class ControlDataset(Dataset):
         """
         return len(self.control_df)
 
-    def __getitem__(self, index) -> dict:
+    def __getitem__(self, index) -> dict[str, torch.Tensor]:
         """
         约定的较好实践:
             - 这个方法进行的操作:
@@ -111,4 +108,12 @@ class ControlDataset(Dataset):
             # 'target':
             # 'data':
         )
+
+    def process_data(
+        self,
+        data,
+    ) -> torch.Tensor:
+        """
+        可以用一个工具类来实现，处理完需要是tensor。
+        """
 
