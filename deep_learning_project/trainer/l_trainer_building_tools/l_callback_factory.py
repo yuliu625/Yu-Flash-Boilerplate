@@ -4,11 +4,12 @@
 统一工厂方法构建callback，具体设置由配置文件实现。
 
 重要callback:
-    - model_checkpoint:
-    - early_stopping:
+    - model_checkpoint: checkpoint管理，这个callback很必要。
+    - early_stopping: 早退控制，这个callback很有用。
+
 功能callback:
-    - model_summary:
-    - device_stats_monitor:
+    - model_summary: 配置文件已有预定义，无需修改。
+    - device_stats_monitor: 配置文件已有预定义，无需修改。
 """
 
 from __future__ import annotations
@@ -58,7 +59,7 @@ class LCallbackFactory:
             callback_config:
 
         Returns:
-
+            Callback: checkpoint控制的callback。
         """
         model_checkpoint_callback = ModelCheckpoint(
             **callback_config,
@@ -79,26 +80,34 @@ class LCallbackFactory:
             callback_config:
 
         Returns:
-
+            Callback: 早退控制的callback。
         """
         early_stopping_callback = EarlyStopping(
             **callback_config,
         )
         return early_stopping_callback
 
+    # ====工具方法。====
     @staticmethod
     def create_model_summary_callback(
         callback_config: dict,
     ) -> Callback:
+        """
+        配置文件已有预定义，无需修改。
+        """
         model_summary_callback = ModelSummary(
             **callback_config,
         )
         return model_summary_callback
 
+    # ====工具方法。====
     @staticmethod
     def create_device_stats_monitor_callback(
         callback_config: dict,
     ) -> Callback:
+        """
+        配置文件已有预定义，无需修改。
+        """
         device_stats_monitor_callback = DeviceStatsMonitor(
             **callback_config,
         )
