@@ -15,12 +15,14 @@ lightning提供的DataModule。
 
 from __future__ import annotations
 
-from deep_learning_project.torch_dataloaders.torch_datasets.torch_dataset_factory import DatasetFactory
-from deep_learning_project.torch_dataloaders.torch_dataloader_factory import DataLoaderFactory
+from deep_learning_project.torch_dataloaders import (
+    TorchDatasetFactory,
+    TorchDataLoaderFactory,
+)
 
 import lightning as pl
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from torch.utils.data import DataLoader
 
@@ -48,10 +50,10 @@ class LDataModule(pl.LightningDataModule):
         train_dataloader_config: dict,
         val_dataset_config: dict,
         val_dataloader_config: dict,
-        test_dataset_config: Optional[dict] = None,
-        test_dataloader_config: Optional[dict] = None,
-        predict_dataset_config: Optional[dict] = None,
-        predict_dataloader_config: Optional[dict] = None,
+        test_dataset_config: dict,
+        test_dataloader_config: dict,
+        predict_dataset_config: dict,
+        predict_dataloader_config: dict,
     ):
         """
         仅以可序列化数据构建DataModule。
@@ -69,10 +71,10 @@ class LDataModule(pl.LightningDataModule):
             train_dataloader_config (dict): 训练数据加载器需要的配置，具体实现由dataloader-factory实现。
             val_dataset_config (dict): 验证数据集需要的配置，具体实现由dataset-factory实现。
             val_dataloader_config (dict): 验证数据加载器需要的配置，具体实现由dataloader-factory实现。
-            test_dataset_config (Optional[dict]): 测试数据集需要的配置，具体实现由dataset-factory实现。
-            test_dataloader_config (Optional[dict]): 测试数据加载器需要的配置，具体实现由dataloader-factory实现。
-            predict_dataset_config (Optional[dict]): 预测数据集需要的配置，具体实现由dataset-factory实现。
-            predict_dataloader_config (Optional[dict]): 预测数据加载器需要的配置，具体实现由dataloader-factory实现。
+            test_dataset_config (dict): 测试数据集需要的配置，具体实现由dataset-factory实现。
+            test_dataloader_config (dict): 测试数据加载器需要的配置，具体实现由dataloader-factory实现。
+            predict_dataset_config (dict): 预测数据集需要的配置，具体实现由dataset-factory实现。
+            predict_dataloader_config (dict): 预测数据加载器需要的配置，具体实现由dataloader-factory实现。
         """
         super().__init__()
         self.train_dataset_config = train_dataset_config
@@ -104,7 +106,7 @@ class LDataModule(pl.LightningDataModule):
 
         额外说明:
             实际上，我很不喜欢这样写这个方法，原因在于:
-                - stage输入是有限的，应指定为 stage: Literal['fit', 'validate', 'test', 'predict'],
+                - stage输入是有限的，应指定为 stage: Literal['fit', 'validate', 'test', 'predict']
                 - stage传入None会复杂相关操作。
                 - dataset在init方法之外构建。
                 - 多个if判断和不明原因的None判断。
@@ -113,39 +115,39 @@ class LDataModule(pl.LightningDataModule):
                 - 这个方法由L.Trainer控制，人为干预较少。
         """
         if stage == 'fit' or stage is None:
-            self.train_dataset = DatasetFactory.create_train_dataset(**self.train_dataset_config)
-            self.val_dataset = DatasetFactory.create_validate_dataset(**self.val_dataset_config)
+            self.train_dataset = TorchDatasetFactory.create_train_dataset(**self.train_dataset_config)
+            self.val_dataset = TorchDatasetFactory.create_val_dataset(**self.val_dataset_config)
         if stage == 'validate' or stage is None:
-            self.val_dataset = DatasetFactory.create_validate_dataset(**self.val_dataset_config)
+            self.val_dataset = TorchDatasetFactory.create_val_dataset(**self.val_dataset_config)
         if stage == 'test' or stage is None:
-            self.test_dataset = DatasetFactory.create_test_dataset(**self.test_dataset_config)
+            self.test_dataset = TorchDatasetFactory.create_test_dataset(**self.test_dataset_config)
         if stage == 'predict' or stage is None:
-            self.predict_dataset = DatasetFactory.create_predict_dataset(**self.predict_dataset_config)
+            self.predict_dataset = TorchDatasetFactory.create_predict_dataset(**self.predict_dataset_config)
 
     """
     <!--dataloader的自动获取方法-start-->
     """
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoaderFactory.create_train_dataloader(
+        return TorchDataLoaderFactory.create_train_dataloader(
             train_dataset=self.train_dataset,
             **self.train_dataloader_config,
         )
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoaderFactory.create_val_dataloader(
+        return TorchDataLoaderFactory.create_val_dataloader(
             val_dataset=self.val_dataset,
             **self.val_dataloader_config,
         )
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoaderFactory.create_test_dataloader(
+        return TorchDataLoaderFactory.create_test_dataloader(
             test_dataset=self.test_dataset,
             **self.test_dataloader_config,
         )
 
     def predict_dataloader(self) -> DataLoader:
-        return DataLoaderFactory.create_predict_dataloader(
+        return TorchDataLoaderFactory.create_predict_dataloader(
             predict_dataset=self.predict_dataset,
             **self.predict_dataloader_config,
         )
