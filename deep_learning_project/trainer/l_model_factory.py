@@ -28,14 +28,16 @@ class LModelFactory:
     @staticmethod
     def create_lightning_model(
         torch_model_name: Literal[
-            'normal',
+            'demo',
         ],
         torch_model_config: dict,
         loss_fn_name: Literal[
             'cross_entropy', 'mse',
         ],
         loss_fn_config: dict,
-        optimizer_name: str,
+        optimizer_name: Literal[
+            'adam', 'sgd',
+        ],
         optimizer_config: dict,
         metric_configs: list[dict],
     ) -> LightningModule:
