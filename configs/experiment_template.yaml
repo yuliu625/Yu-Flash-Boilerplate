@@ -18,6 +18,11 @@ data_module_config:
     batch_size: ${data_module_config.train_dataloader_config.batch_size}  # 这个字段可以根据具体情况设置得更大。
     shuffle: False  # 这个字段是bool类型。通常情况会设置为False。
     num_workers: ${data_module_config.train_dataloader_config.num_workers}  # 这个字段可以根据具体情况设置得更大。
+  # 如果没有的情况下，使用validate相关的配置设置test和predict。
+  test_dataset_config: ${data_module_config.val_dataset_config}
+  test_dataloader_config: ${data_module_config.val_dataloader_config}
+  predict_dataset_config: ${data_module_config.val_dataset_config}
+  predict_dataloader_config: ${data_module_config.val_dataloader_config}
 
 
 # model相关的设置。
