@@ -4,6 +4,8 @@
 主要封装了lightning的训练操作。
 
 这个包可能需要的修改:
-    - l_model_building_tools
+    - l_model_building_tools:
+        - torch_loss_fns: 自定义loss_fn。
+        - torchmetrics_metrics: 自定义metrics。
 """
 
