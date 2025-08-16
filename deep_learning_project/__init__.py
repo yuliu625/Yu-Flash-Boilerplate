@@ -3,7 +3,11 @@
 
 定义的具体约定:
     - data:
+        - dict: 传递数据以dict进行传递。
+        - dataset-key: dataset返回的dict的keys=['target','data']。
+        - dataloader-key: dataloader返回的dict的keys=['target','data']。(也是collate_fn需要进行的映射处理约定名称。)
     - model:
+        - torch_model_config: 模型的实例化由可序列化的数据完成，统一封装在dict中，不强制进行schema检验。
     - trainer:
 
 需要进行注册的部分:
