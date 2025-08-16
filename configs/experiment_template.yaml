@@ -70,16 +70,16 @@ trainer_config:
     - callback_name: device_stats_monitor
       callback_config:
         cpu_stats: None
-  # loggers常用设置，较少修改。
+  # loggers常用设置，较少修改。  一般仅修改wandb部分。
   # logger_name: Literal['csv', 'tensorboard', 'wandb', 'mlflow',]
   # logger_config: dict  因具体logger的不同，logger_config需要具体进行设置。
-  # 因我所处的多服务器环境，实际使用的为wandb，其他logger作为备份。
+  # 因我面临的多服务器环境，实际使用的为wandb，其他logger作为备份。
   logger_configs:  # logger_name: Literal
     - logger_name: wandb
       logger_config:
         save_dir: ${trainer_config.trainer_base_config.default_root_dir}/logs/wandb_logs
         project: ''
-        name: ''
+        name: ''  # 一个推荐的命名方法为: ${torch_model_name}--${loss_fn_name}--${lr}
         version: ''
     # 复用wandb设置，无需手动配置。
     - logger_name: csv
