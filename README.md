@@ -8,19 +8,15 @@ Many engineering tasks in deep learning projects are repetitive and tedious. To 
 While PyTorch Lightning already simplifies a lot of engineering development and training control, I've added extra conventions and encapsulations to further boost efficiency.
 
 The core value of this template lies in:
-
 - **Focusing on the core task:** You can concentrate on data processing, model design, and improving training methods without wasting time building a project framework from scratch.
 - **Boosting development efficiency:** This template eliminates the repetitive setup phase of deep learning projects, allowing you to dive directly into model development.
 - **Extensibility:** Despite its conventions, the template retains plenty of **hooks** to meet future customization and extension needs.
 
 This repository is lightweight and powerful, with just over a thousand lines of pure code. It's an excellent starting point that you can clone and use as the foundation for your new projects.
 
------
 
 ## Quick Start
-
 ### Installation
-
 ```bash
 git clone https://github.com/yuliu625/Yu-Flash-Boilerplate.git
 cd Flash-Boilerplate
@@ -46,7 +42,6 @@ cd Flash-Boilerplate
 
 ### Running
 Use the example configuration files in the `configs` directory to run a training task directly:
-
 ```bash
 bash scripts/run.sh
 ```
@@ -75,7 +70,6 @@ To ensure a consistent data flow, all data is passed using the `dict` format.
 
 ### 3\. Configuration Management
 All project configurations are stored as `YAML` files in the `configs` directory.
-
 - **Single configuration:** A single configuration file contains all settings for a task, making it easy to version control.
 - **Batch generation:** The `jinja2` template engine can be used to generate configuration files in bulk, which is useful for large-scale experiments like hyperparameter searches.
 
@@ -111,9 +105,7 @@ Here are some real-world projects built on this template (or its predecessor) th
 
 
 ## Future Plans
-
 I plan to further enhance this template in the future by:
-
   - **Integrating automated hyperparameter search:** Introducing tools like `optuna` or `ray[tune]` for more advanced automated experimentation.
   - **Adding distributed and parallel training support:** Leveraging `ray`'s capabilities to simplify large-scale data processing and distributed training.
 
